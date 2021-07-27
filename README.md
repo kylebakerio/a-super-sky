@@ -21,7 +21,7 @@ then add sky to your scene:
       <a-sun-sky 
         id="sun"
         material="side: back; reileigh: 1; luminance: 1;"
-        super-sky="cycleDuration:.1; moonCycle=false;";
+        super-sky="cycleDuration:.1; ";
       ></a-sun-sky>
 ```
 
