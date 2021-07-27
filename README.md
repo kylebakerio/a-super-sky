@@ -23,9 +23,9 @@ then add sky to your scene:
 
 see super-sky.js schema for options. comments explain their use.
 
-glitch example: https://a-super-sky.glitch.me/
-also see: index.html in this repo
-also see: https://kylebakerio.github.io/a-super-sky/
+- glitch example: https://a-super-sky.glitch.me/
+- also see: index.html in this repo
+- also see: https://kylebakerio.github.io/a-super-sky/
 
 # TODO:
 - better method for changing moon rise/set position than a-scene rotation
