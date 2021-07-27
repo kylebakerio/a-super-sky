@@ -1,9 +1,13 @@
 # a-super-sky
 fancy, lightweight, drop-in day-night sky component for A-Frame
 
+# compatibility
+
 doesn't seem to be working with A-Frame 1.2.0 because of THREE changes to THREE.geometry being removed.
 
 otherwise, tested with aframe 1.0.4 and 1.1.0.
+
+# how to add
 
 add sources to project:
 ```
