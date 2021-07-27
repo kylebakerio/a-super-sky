@@ -35,3 +35,4 @@ see super-sky.js schema for options. comments explain their use.
 - better method for changing moon rise/set position than a-scene rotation
 - enable better control of sun/moon trajectory through sky
 - cause sun/moon/stars to optionally affect scene lighting
+- code could be cleaner and more well tested--it's really something I shared as soon as I threw it together and got it working. "Better rough than never."
