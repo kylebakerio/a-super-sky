@@ -26,8 +26,8 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - to reduce resource demands, reduce `starCount` and add `throttle`.
 
 ## A-Frame version
-Absolutely works with A-Frame 1.0.4 & 1.1.0.
-Sun/Moon should work with A-Frame 1.2.0, but stars break it currently. Disable with `showStars: false` to get sun/moon, or `enableMoonCycle: false` to only show sunrise/sunset/darkness without stars.
+Absolutely works with **A-Frame 1.0.4 & 1.1.0**.
+Sun/Moon work with **A-Frame 1.2.0**, but stars dependency isn't updated with the changes to THREE.geometry yet needed for 1.2.0 updates. Disable the stars with `showStars: false` to get sun/moon without stars, or `moonCycle: false` to only show sunrise/sunset/darkness without stars or moon, and it'll work fine in 1.2.0.
 
 # how to add
 
@@ -44,7 +44,7 @@ then add sky to your scene:
         <a-sun-sky 
         id="sun"
         material="side: back; reileigh: 1; luminance: 1;"
-        super-sky="cycleDuration:.1; ";
+        super-sky="cycleDuration:.1; moonCycle:true; showStars:true;";
         ></a-sun-sky>
       </a-scene>
 ```
@@ -58,6 +58,7 @@ see super-sky.js schema for options. comments explain their use.
 - enable better control of sun/moon trajectory through sky
 - code could be cleaner and more well tested--it's really something I shared as soon as I threw it together and got it working. "Better rough than never."
 - slightly rotate world while stars are in sky to create star movement
+- fix sudden shift from blue-darkness sky to grey-darkness sky after moonset resulting from reileigh and/or luminance shift
 - currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable.
 - moon with phases would be an excellent improvement.
 
