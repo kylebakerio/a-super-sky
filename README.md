@@ -1,10 +1,14 @@
 # a-super-sky
-fancy, lightweight, drop-in day-night sky component for A-Frame
+fancy, lightweight, drop-in day-night sky component for A-Frame.
+Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component).
 
 # compatibility
 
-doesn't seem to be working with A-Frame 1.2.0 because of THREE changes to THREE.geometry being removed.
+## System Resources
+runs easily in oculus quest 2's native browser. pretty sure it'll run in google cardboard, need to test further.
 
+## A-Frame version
+doesn't seem to be working with A-Frame 1.2.0 because of THREE changes to THREE.geometry being removed.
 otherwise, tested with aframe 1.0.4 and 1.1.0.
 
 # how to add
