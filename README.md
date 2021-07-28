@@ -5,7 +5,8 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 # compatibility
 
 ## System Resources
-runs easily in oculus quest 2's native browser. pretty sure it'll run in google cardboard, need to test further.
+- runs easily in oculus quest 2's native browser. pretty sure it'll run in google cardboard, need to test further.
+- to reduce resource demands, reduce `starCount` and add `throttle`.
 
 ## A-Frame version
 doesn't seem to be working with A-Frame 1.2.0 because of THREE changes to THREE.geometry being removed.
@@ -22,11 +23,13 @@ add sources to project:
 
 then add sky to your scene:
 ```js
-      <a-sun-sky 
+      <a-scene>
+        <a-sun-sky 
         id="sun"
         material="side: back; reileigh: 1; luminance: 1;"
         super-sky="cycleDuration:.1; ";
-      ></a-sun-sky>
+        ></a-sun-sky>
+      </a-scene>
 ```
 
 see super-sky.js schema for options. comments explain their use.
