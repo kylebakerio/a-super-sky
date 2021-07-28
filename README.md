@@ -14,10 +14,10 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - stars fade out, and then fog again comes in just to create a feeling of shadows retreating at dawn.
 
 # demos
-- glitch: https://a-super-sky.glitch.me/
-- remix on glitch: https://glitch.com/edit/#!/remix/a-super-sky
-- also see: index.html in this repo
-- also see: https://kylebakerio.github.io/a-super-sky/
+- play with live functioning code on glitch: https://glitch.com/edit/#!/remix/a-super-sky
+- this repo's demo html: index.html in this repo
+- this repo's live demo: https://kylebakerio.github.io/a-super-sky/
+- see live demo on glitch: https://a-super-sky.glitch.me/
 
 # compatibility
 
