@@ -15,6 +15,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 
 # demos
 - glitch: https://a-super-sky.glitch.me/
+- remix on glitch: https://glitch.com/edit/#!/remix/a-super-sky
 - also see: index.html in this repo
 - also see: https://kylebakerio.github.io/a-super-sky/
 
@@ -25,8 +26,8 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - to reduce resource demands, reduce `starCount` and add `throttle`.
 
 ## A-Frame version
-doesn't seem to be working with A-Frame 1.2.0 because of THREE changes to THREE.geometry being removed.
-otherwise, tested with aframe 1.0.4 and 1.1.0.
+Absolutely works with A-Frame 1.0.4 & 1.1.0.
+Sun/Moon should work with A-Frame 1.2.0, but stars break it currently. Disable with `showStars: false` to get sun/moon, or `enableMoonCycle: false` to only show sunrise/sunset/darkness without stars.
 
 # how to add
 
