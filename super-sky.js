@@ -65,7 +65,9 @@ AFRAME.registerComponent('super-sky', {
       this.el.sceneEl.appendChild(this.starSky);
       this.el.sceneEl.appendChild(this.stars);
       if (!this.data.startTime) {
-         this.data.startTime = Date.now();
+        this.data.startTime = Date.now();
+      } else {
+        console.log(this.data.startTime)
       }
       if (this.data.throttle) {
         this.tick = AFRAME.utils.throttleTick(this.tick, this.data.throttle, this);
@@ -76,7 +78,7 @@ AFRAME.registerComponent('super-sky', {
     fogRangeMax: 1000,
     getOrbit() {
       // converts time passed into a fraction of 360, so 0,1,2...359,360,0,1...etc.
-      const msSinceStart = Date.now() - this.startTime;
+      const msSinceStart = Date.now() - this.data.startTime;
       const minSinceStart = msSinceStart / 1000 / 60;
       const minIntoCycle = minSinceStart % this.data.cycleDuration;
       const fractionOfCurrentCycleCycle = minIntoCycle * ( 1 / this.data.cycleDuration );
@@ -251,4 +253,3 @@ AFRAME.registerComponent('super-sky', {
       });
     },
 });
-
