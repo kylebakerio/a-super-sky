@@ -8,9 +8,9 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 ![luminous moon + blue sky + stars](https://i.imgur.com/w6847An.png)
 
 # features
-- sunrise, daytime, and sunset feature beautiful reileigh scattering colors in the sky
+- sunrise, daytime, and sunset feature beautiful rayleigh scattering colors in the sky
 - `fog` component creates feeling of darkness after sunset, that then retreats as stars slowly fade into view
-- moon rises and sets, creating a blue reileigh glow in the sky
+- moon rises and sets, creating a blue rayleigh glow in the sky
 - stars fade out, and then fog again comes in just to create a feeling of shadows retreating at dawn.
 
 # demos
@@ -44,7 +44,7 @@ then add sky to your scene:
       <a-scene>
         <a-sun-sky 
         id="sun"
-        material="side: back; reileigh: 1; luminance: 1;"
+        material="side: back; rayleigh: 1; luminance: 1;"
         super-sky="cycleDuration:.1; moonCycle:true; showStars:true;";
         ></a-sun-sky>
       </a-scene>
@@ -59,7 +59,7 @@ see super-sky.js schema for options. comments explain their use.
 - enable better control of sun/moon trajectory through sky
 - code could be cleaner and more well tested--it's really something I shared as soon as I threw it together and got it working. "Better rough than never."
 - slightly rotate world while stars are in sky to create star movement
-- fix sudden shift from blue-darkness sky to grey-darkness sky after moonset resulting from reileigh and/or luminance shift
+- fix sudden shift from blue-darkness sky to grey-darkness sky after moonset resulting from rayleigh and/or luminance shift
 - currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable.
 - moon with phases would be an excellent improvement.
 

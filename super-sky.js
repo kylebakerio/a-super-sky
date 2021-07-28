@@ -120,7 +120,7 @@ AFRAME.registerComponent('super-sky', {
         if (this.data.debug) console.log("switching sun/moon", orbit, 'moon:', this.moon)
 
         this.moon=!this.moon;
-        this.el.setAttribute('material', 'reileigh', this.moon ? 0.1 : 1);
+        this.el.setAttribute('material', 'rayleigh', this.moon ? 0.1 : 1);
         this.el.setAttribute('material', 'luminance', this.moon ? 1.18 : 1);
         this.moonSunSwitchFlag = true;
         if (this.moon) {
