@@ -7,6 +7,11 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 ![sunset with dynamic colored sky](https://i.imgur.com/tzEqI6B.png)
 ![luminous moon + blue sky + stars](https://i.imgur.com/w6847An.png)
 
+# features
+- sunrise, daytime, and sunset feature beautiful reileigh scattering colors in the sky
+- `fog` component creates feeling of darkness after sunset, that then retreats as stars slowly fade into view
+- moon rises and sets, creating a blue reileigh glow in the sky
+- stars fade out, and then fog again comes in just to create a feeling of shadows retreating at dawn.
 
 # compatibility
 
