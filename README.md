@@ -16,7 +16,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 # compatibility
 
 ## System Resources
-- runs easily in oculus quest 2's native browser. pretty sure it'll run in google cardboard, need to test further.
+- runs easily in oculus quest 2's native browser. seems to run super smooth in cardboard as well.
 - to reduce resource demands, reduce `starCount` and add `throttle`.
 
 ## A-Frame version
