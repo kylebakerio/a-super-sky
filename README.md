@@ -13,6 +13,11 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - moon rises and sets, creating a blue reileigh glow in the sky
 - stars fade out, and then fog again comes in just to create a feeling of shadows retreating at dawn.
 
+# demos
+- glitch: https://a-super-sky.glitch.me/
+- also see: index.html in this repo
+- also see: https://kylebakerio.github.io/a-super-sky/
+
 # compatibility
 
 ## System Resources
@@ -45,9 +50,6 @@ then add sky to your scene:
 
 see super-sky.js schema for options. comments explain their use.
 
-- glitch example: https://a-super-sky.glitch.me/
-- also see: index.html in this repo
-- also see: https://kylebakerio.github.io/a-super-sky/
 
 # TODO:
 - cause sun/moon/stars to optionally affect scene lighting
