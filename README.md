@@ -1,4 +1,6 @@
 # a-super-sky
+<a href='https://ko-fi.com/supportkofi' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /><a/>
+
 fancy, lightweight, drop-in day-night sky component for A-Frame.
 Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component).
 
@@ -47,3 +49,5 @@ see super-sky.js schema for options. comments explain their use.
 - enable better control of sun/moon trajectory through sky
 - cause sun/moon/stars to optionally affect scene lighting
 - code could be cleaner and more well tested--it's really something I shared as soon as I threw it together and got it working. "Better rough than never."
+
+
