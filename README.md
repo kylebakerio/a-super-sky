@@ -26,8 +26,9 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - to reduce resource demands, reduce `starCount` and add `throttle`.
 
 ## A-Frame version
-Absolutely works with **A-Frame 1.0.4 & 1.1.0**.
-Sun/Moon work with **A-Frame 1.2.0**, but stars dependency isn't updated with the changes to THREE.geometry yet needed for 1.2.0 updates. Disable the stars with `showStars: false` to get sun/moon without stars, or `moonCycle: false` to only show sunrise/sunset/darkness without stars or moon, and it'll work fine in 1.2.0.
+- Absolutely works with **A-Frame 1.0.4 & 1.1.0**.
+- Sun/Moon work with **A-Frame 1.2.0** with stars disabled
+`star-system` dependency isn't updated with the changes to THREE.geometry yet needed for 1.2.0 updates (it's a 4 year old project that uses particles for the performant star effect). Disable the stars with `showStars: false` to get sun/moon without stars, or `moonCycle: false` to only show sunrise/sunset/darkness without stars or moon, and it'll work fine in 1.2.0.
 
 # how to add
 
