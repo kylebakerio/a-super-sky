@@ -2,6 +2,10 @@
 fancy, lightweight, drop-in day-night sky component for A-Frame.
 Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component).
 
+![sunset with dynamic colored sky](https://i.imgur.com/tzEqI6B.png)
+![luminous moon + blue sky + stars](https://i.imgur.com/w6847An.png)
+
+
 # compatibility
 
 ## System Resources
