@@ -43,7 +43,7 @@ AFRAME.registerComponent('super-sky', {
       throttle: {
         // how much to throttle, if desired
         type: 'number',
-        default: 10, // min ms to wait before recalculating sky change since last calculation
+        default: 10, // min ms to wait before recalculating sky change since last calculation; 10 = 100fps cap
       }
     },
     init: function () {
