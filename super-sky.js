@@ -1,26 +1,31 @@
 AFRAME.registerComponent('super-sky', {
     schema: {
-      starCount: {
-        type: 'number',
-        default: 1000,
-      },
       cycleDuration: {
         // time for one sun cycle. If moon cycle is enabled, then a full day will be twice this length.
         type: 'number',
-        default: 5, // in minutes
+        default: 1, // in minutes
       },
       moonCycle: {
         // turn on/off moon cycle; also turns off stars. Nights are 'just black' when false.
         // relies on setting and controlling 'fog' component for a-scene.
+        // night becomes 3x length, and features a 'moon' for 1/3 of that
         type: 'boolean',
         default: true,
       },
+      starCount: {
+        // how many stars to show at night
+        type: 'number',
+        default: 500,
+      },
       starLoopStart: {
+        // you probably shouldn't touch this.
+        // sets offset (compare with no offset at 180) of when stars should rise and fog should creep in
         type: 'number',
         default: 200, // number from 0 -> 360; 180 is sunset
       },
       sunRise: {
         // where on the horizon the sun rises from
+        // accomplishes this by rotating a-scene
         type: 'number',
         default: 0, // number from 0 -> 360
       },
@@ -28,13 +33,18 @@ AFRAME.registerComponent('super-sky', {
         // where on the horizon the moon rises from
         // this is accomplished adding rotation to a-scene
         type: 'number',
-        default: 0, // number from 0 -> 360
+        default: 45, // number from 0 -> 360
       },
       fogMin: {
         // how far you can see when night is at its darkest
         type: 'number',
         default: 70, // number from 0 -> 360
       },
+      throttle: {
+        // how much to throttle, if desired
+        type: 'number',
+        default: 10, // number from 0 -> 360
+      }
     },
     init: function () {
       // this.orbitEl = this.el.sceneEl.querySelector('#orbit');
@@ -49,6 +59,9 @@ AFRAME.registerComponent('super-sky', {
       this.el.sceneEl.appendChild(this.starSky);
       this.el.sceneEl.appendChild(this.stars);
       this.startTime = Date.now();
+      if (this.data.throttle) {
+        this.tick = AFRAME.utils.throttleTick(this.tick, this.data.throttle, this);
+      }
     },
     starCycle: 0, // dynamic
     fogValue: 0, // dynamic
