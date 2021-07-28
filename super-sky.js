@@ -5,6 +5,12 @@ AFRAME.registerComponent('super-sky', {
         type: 'number',
         default: 1, // in minutes
       },
+      startTime: {
+        // this will be auto-set to Date.now(), but you can specify a start time to sync the sky to other
+        // users or to a consistent 'real' time.
+        type: 'number',
+        default: 0,
+      },
       moonCycle: {
         // turn on/off moon cycle; also turns off stars. Nights are 'just black' when false.
         // relies on setting and controlling 'fog' component for a-scene.
@@ -58,7 +64,9 @@ AFRAME.registerComponent('super-sky', {
       this.stars.setAttribute('star-system','count',0);
       this.el.sceneEl.appendChild(this.starSky);
       this.el.sceneEl.appendChild(this.stars);
-      this.startTime = Date.now();
+      if (!this.data.startTime) {
+         this.data.startTime = Date.now();
+      }
       if (this.data.throttle) {
         this.tick = AFRAME.utils.throttleTick(this.tick, this.data.throttle, this);
       }
