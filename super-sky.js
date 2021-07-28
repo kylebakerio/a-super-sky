@@ -18,6 +18,10 @@ AFRAME.registerComponent('super-sky', {
         type: 'boolean',
         default: true,
       },
+      showStars: {
+        type: 'boolean',
+        default: true,
+      },
       starCount: {
         // how many stars to show at night
         type: 'number',
@@ -50,6 +54,10 @@ AFRAME.registerComponent('super-sky', {
         // how much to throttle, if desired
         type: 'number',
         default: 10, // min ms to wait before recalculating sky change since last calculation; 10 = 100fps cap
+      },
+      debug: {
+        type: 'boolean',
+        default: false,
       }
     },
     init: function () {
@@ -59,14 +67,17 @@ AFRAME.registerComponent('super-sky', {
       this.starSky = document.createElement('a-sky');
       this.starSky.setAttribute('id', 'starSky');
       this.starSky.setAttribute('opacity', 0);
-      this.stars = document.createElement('a-entity');
-      this.stars.setAttribute('id', 'stars');
-      this.stars.setAttribute('star-system','count',0);
-      this.el.sceneEl.appendChild(this.starSky);
-      this.el.sceneEl.appendChild(this.stars);
+      
+      if (this.data.showStars) {
+        this.stars = document.createElement('a-entity');
+        this.stars.setAttribute('id', 'stars');
+        this.stars.setAttribute('star-system','count',0);
+        this.el.sceneEl.appendChild(this.starSky);
+        this.el.sceneEl.appendChild(this.stars);
+      }
       if (!this.data.startTime) {
         this.data.startTime = Date.now();
-      } else {
+      } else if (this.data.debug) {
         console.log(this.data.startTime)
       }
       if (this.data.throttle) {
@@ -106,38 +117,37 @@ AFRAME.registerComponent('super-sky', {
         this.moonSunSwitchFlag = false;
       }
       if (orbit > this.data.starLoopStart && !this.moonSunSwitchFlag) {
-        console.log("switching sun/moon", orbit, 'moon:', this.moon)
+        if (this.data.debug) console.log("switching sun/moon", orbit, 'moon:', this.moon)
+
         this.moon=!this.moon;
         this.el.setAttribute('material', 'reileigh', this.moon ? 0.1 : 1);
         this.el.setAttribute('material', 'luminance', this.moon ? 1.18 : 1);
         this.moonSunSwitchFlag = true;
         if (this.moon) {
-          console.log('switch to moon cycle, set stars')
+          if (this.data.debug) console.log('switch to moon cycle, rotate scene for moonrise')
           this.el.sceneEl.setAttribute('rotation', {y:this.data.moonRise})
-          this.stars.setAttribute('star-system', "count", this.data.starCount);
+          
+          if (this.data.showStars) {
+            // show stars right after sunset
+            this.stars.setAttribute('star-system', "count", this.data.starCount);
+          }
         } else {
-          console.log('switch to sun cycle, hide stars')
+          if (this.data.debug) console.log('switch to sun cycle, rotate scene for sunrise')
           // remove stars
           this.el.sceneEl.setAttribute('rotation', {y:this.data.sunRise})
           // this.stars.setAttribute('star-system', "count", 0);
         }
       }
 
-      // track star loop separately
+      // track star loop separately to have stars rise and fog come in offset just after sunset
       if (orbit > this.data.starLoopStart) {
         this.starLoop = orbit - this.data.starLoopStart;
       } else {
         this.starLoop = orbit + (360 - this.data.starLoopStart);
       }
 
-      // experiment to move starLoop
       this.starCycle = this.starLoop * ( 1 / 180 ); // 0 -> 2 scale for the 0 -> 360 rotation; we do until 2 so that we can make it negative after 1.
       this.starCycle = this.starCycle > 1 ? 2 - this.starCycle : this.starCycle;
-
-      // no creeping fog at moonset
-      // this.fogValue = (this.moon && this.starLoop > 270) ?
-      //   (this.fogRange.night) - (this.starCycle * this.fogRange.night) : // invert direction
-      //   (this.starCycle * this.fogRange.night);
 
       // fog: 
       // - 0 just after sunset,
@@ -161,7 +171,7 @@ AFRAME.registerComponent('super-sky', {
         // sunset -> starlight
         // less fog (so, higher fog value) as percent of eighth goes up
         this.fogValue = eighth.percent * this.fogRangeMax
-        if (!this.moon) {
+        if (!this.moon && this.data.showStars) {
           this.stars.setAttribute('star-system', "count", 0);
         }
       } 
@@ -171,23 +181,11 @@ AFRAME.registerComponent('super-sky', {
         // dusk -> sunrise 
         // more fog (so, lower fog value) as percent of eighth goes up
         this.fogValue = (1 - eighth.percent) * this.fogRangeMax
-        if (this.moon) {
-          this.stars.setAttribute('star-system', "count", this.data.starCount);
-        }
       } 
       else {
         this.fogValue = this.fogRangeMax
       }
       if (this.fogValue < this.data.fogMin) this.fogValue = this.data.fogMin;
-
-      // if (this.moon && this.starLoop > 270) {
-      //   this.fogValue = (this.fogRange.night) - (this.starCycle * this.fogRange.night);
-      // } else {
-      //   this.fogValue = (this.starCycle * this.fogRange.night);
-      // }
-
-          // this.stars.setAttribute('star-system', "count", this.data.starCount);
-          // this.stars.setAttribute('star-system', "count", 0);
 
       this.el.sceneEl.setAttribute('fog', 'far', this.fogValue);
     },
@@ -198,50 +196,6 @@ AFRAME.registerComponent('super-sky', {
       if (this.data.moonCycle) {
         this.handleMoonCycle(orbit);
       }
-
-      // if (orbit < 270 && this.moonSunSwitchFlag) {
-      //   this.moonSunSwitchFlag = false;
-      // }
-      // if (orbit > 270 && !this.moonSunSwitchFlag) {
-      //   console.log("switching sun/moon", orbit, 'moon:', this.moon)
-      //   this.moon=!this.moon;
-      //   this.el.setAttribute('material', 'reileigh', this.moon? 0.1 : 1);
-      //   this.el.setAttribute('material', 'luminance', this.moon? 1.18 : 1);
-      //   this.moonSunSwitchFlag = true;
-      //   if (this.moon) {
-      //     document.getElementById('stars').setAttribute('star-system', "count", this.data.starCount)
-      //     // add stars
-      //     // make sky opacity = 0 to allow moon to shine through
-      //     // fog can kill stars, far=1000 to allow seeing it; 
-
-      //     // <a-sky color="black" opacity=0></a-sky>
-      //     // <a-entity star-system></a-entity>
-      //   } else {
-      //     // remove stars
-      //     // this.el.sceneEl.setAttribute('fog', 'far', this.fogRange.day)
-      //     document.getElementById('stars').setAttribute('star-system', "count", 0)
-
-      //     // star-system count to 0
-      //     // maybe use fog to hide stars?
-      //   }
-      // }
-
-      // // track star loop separately
-      // if (orbit > 270) {
-      //   this.starLoop = orbit - 270;
-      // } else {
-      //   this.starLoop = orbit + 90;
-      // }
-
-      // this.starCycle = this.starLoop * ( 1 / 180 ); // 0 -> 2 scale for the 0 -> 360 rotation; we do until 2 so that we can make it negative after 1.
-      // this.starCycle = this.starCycle > 1 ? 2 - this.starCycle : this.starCycle
-
-      // this.fogValue = this.starCycle * this.fogRange.night;
-
-      // if (this.fogValue < this.fogRange.day) this.fogValue = this.fogRange.day;
-      // this.el.sceneEl.setAttribute('fog', 'far', this.fogValue)
-      // if (this.moon) {
-      // }
 
       // moving sun according to the 0 -> 360 input
       const theta = Math.PI * (- 0.25);
