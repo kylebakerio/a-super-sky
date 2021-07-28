@@ -50,9 +50,11 @@ see super-sky.js schema for options. comments explain their use.
 - also see: https://kylebakerio.github.io/a-super-sky/
 
 # TODO:
+- cause sun/moon/stars to optionally affect scene lighting
 - better method for changing moon rise/set position than a-scene rotation
 - enable better control of sun/moon trajectory through sky
-- cause sun/moon/stars to optionally affect scene lighting
 - code could be cleaner and more well tested--it's really something I shared as soon as I threw it together and got it working. "Better rough than never."
-
+- slightly rotate world while stars are in sky to create star movement
+- currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable.
+- moon with phases would be an excellent improvement.
 
