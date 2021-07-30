@@ -57,6 +57,7 @@ see super-sky.js schema for options. comments explain their use.
 
 
 # TODO:
+- one little sudden brightness flash after sunset / darkness before sunrise that is too abrupt and not quite right
 - better method for changing moon rise/set position than a-scene rotation
 - enable better control of sun/moon trajectory through sky
 - code could be cleaner and more well tested--it's really something I shared as soon as I threw it together and got it working. "Better rough than never."
