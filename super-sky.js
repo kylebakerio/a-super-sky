@@ -1,6 +1,3 @@
-const THREE = window.THREE;
-const AFRAME = window.AFRAME;
-
 AFRAME.registerComponent('super-sky', {
     schema: {
       cycleDuration: {
@@ -11,6 +8,11 @@ AFRAME.registerComponent('super-sky', {
       startTime: {
         // this will be auto-set to Date.now(), but you can specify a start time to sync the sky to other
         // users or to a consistent 'real' time.
+        type: 'number',
+        default: 0,
+      },
+      skipPercentInit: {
+        // percent of full day/night (or day, if moon cycle disabled) to skip at initialization
         type: 'number',
         default: 0,
       },
@@ -107,7 +109,7 @@ AFRAME.registerComponent('super-sky', {
       starlightIntensity: {
          // minimum light intensity at any time of active lights
         type: 'number',
-        default: 0.1, //number from 0 to 1
+        default: 0.2, //number from 0 to 1
       },
 
 
@@ -169,8 +171,11 @@ AFRAME.registerComponent('super-sky', {
         this.starsOld.setAttribute('star-system','count',0);
         this.el.sceneEl.appendChild(this.starsOld);
       }
-      
-      if (!this.data.startTime) {
+      if (this.data.skipPercentInit) {
+        console.warn("not yet working")
+        this.data.startTime = Date.now() + ((this.data.skipPercentInit * (this.data.moonCycle ? 2 : 1)) * (this.data.cycleDuration * 1000 * 60));
+      }
+      else if (!this.data.startTime) {
         this.data.startTime = Date.now();
       }
       else if (this.data.debug) {
@@ -314,54 +319,7 @@ AFRAME.registerComponent('super-sky', {
       // add everything to the scene
       // this.el.setAttribute('visible', true /*this.environmentData.active*/);
     },
-    
-    gLC: {
-      fogRatios: [        1,       0.5,      0.22,       0.1,      0.05,      0],
-      lightColors: ['#C0CDCF', '#81ADC5', '#525e62', '#2a2d2d', '#141616', '#000'],
-    },
-    // returns a light color from a specific sky type and sun height  
-    getLightColor: function (dimFactor=0.9) {
-      let lightColor;
-      // if (skyType == 'color' || skyType == 'none'){
-      //   lightColor = new THREE.Color(this.environmentData.skyColor);
-      // }
-      // else if (skyType == 'gradient'){
-      //   lightColor = new THREE.Color(this.environmentData.horizonColor);
-      // }
-      // else 
-      // if (skyType == 'atmosphere')
-      // {
-
-      if (this.sunPosition.y <= 0) {
-        // document.querySelector('#log').setAttribute('value', "<=0")
-        // document.querySelector('#log2').setAttribute('value', "#000")
-        return '#000';
-      }
-
-      let sunHeight = Math.min(1, this.sunPosition.y);
-
-      let ratio;
-      for (var i = 0; i < this.gLC.fogRatios.length; i++){
-        if (sunHeight > this.gLC.fogRatios[i]){
-          var c1 = new THREE.Color(this.gLC.lightColors[i - 1]);
-          var c2 = new THREE.Color(this.gLC.lightColors[i]);
-          var a = (sunHeight - this.gLC.fogRatios[i]) / (this.gLC.fogRatios[i - 1] - this.gLC.fogRatios[i]);
-          c2.lerp(c1, a);
-          lightColor = c2;
-          ratio=i;
-          break;
-        }
-      }
-  
-      // }
-      // dim down the color
-      lightColor.multiplyScalar(dimFactor);
-      // mix it a bit with ground color
-      lightColor.lerp(new THREE.Color(this.data.groundColor), 0.3);
-      // document.querySelector('#log').setAttribute('value', this.gLC.fogRatios[i])
-      // document.querySelector('#log2').setAttribute('value', this.gLC.lightColors[i])
-      return '#' + lightColor.getHexString();
-    },
+ 
   
     update(oldData) {
       if (this.version === 1) {
@@ -470,6 +428,8 @@ AFRAME.registerComponent('super-sky', {
       this.fractionOfCurrentCycleCycle = this.minIntoCycle * ( 1 / this.data.cycleDuration );
       return 360 * this.fractionOfCurrentCycleCycle;
     },
+    // msToMin() {},
+    // minToMs() {},
 
     moon: false,
     moonSunSwitchFlag: false,
@@ -514,7 +474,7 @@ AFRAME.registerComponent('super-sky', {
         })
 
         // document.querySelector('#log').setAttribute('value', "fog: "+this.fogValue)
-        document.querySelector('#log2').setAttribute('value', 's: ' + this.currentEighthStarLoop.which + "/8; e: " + this.currentEighth.which + "/8")
+        document.querySelector('#log').setAttribute('value', 's: ' + this.currentEighthStarLoop.which + "/8; e: " + this.currentEighth.which + "/8")
       }
     },
     currentEighthStarLoop: { // dynamically set
@@ -551,9 +511,10 @@ AFRAME.registerComponent('super-sky', {
           intensity: this.lights.lightProps.intensity, 
           multiplier: this.lights.intensityMultiplier
         })
+
         
         // document.querySelector('#log').setAttribute('value', "fog: "+this.fogValue)
-        document.querySelector('#log2').setAttribute('value', 's: ' + this.currentEighthStarLoop.which + "/8; e: " + this.currentEighth.which + "/8")
+        document.querySelector('#log').setAttribute('value', 's: ' + this.currentEighthStarLoop.which + "/8; e: " + this.currentEighth.which + "/8")
       }
     },
     currentEighth: { // dynamically set
@@ -675,7 +636,7 @@ AFRAME.registerComponent('super-sky', {
     sunPosition: {x:0,y:0,z:-1}, // dynamically set
     sunPos: {x:0,y:0,z:0}, // dynamically set
     
-    theta: Math.PI * (-.25), // putting it at .5 changes to a sun that goes straight overhead 
+    theta: Math.PI * (-.25), // putting it at .5 changes to a sun that goes straight overhead, but shader only supports movement in its very small range 
     phi() {return (2 * Math.PI * ((this.orbit / 360) - 0.5))}, // percent of circumference
     // this 0.5 is the source of the offset by 2/8ths! it forces it to start at sunrise! // -.25 correspondes to noon, -0 corresponds to sunset
     // a todo, to clean things up, would be removing this 0.5 and having it as a configurable offset (what time of day you want it to start at), but 
@@ -778,6 +739,104 @@ AFRAME.registerComponent('super-sky', {
       // sunlight: {},
       // sunbeam: {},
     },
+
+   
+            //   this.lights.lightProps.color = 
+            // this.moon && this.sunOrMoonUp() ? 
+            //   '#fffcab' : // moonlight blue
+            // this.starlight ? 
+            //   '#fffed9' : // darker starlight blue
+
+    gLC: {
+      fogRatios: [        1,       0.5,      0.22,       0.1,      0.05,      0, -1],
+      lightColors: ['#C0CDCF', '#81ADC5', '#525e62', '#2a2d2d', '#141616', '#000', '#fffed9'],
+      moonsky: '#e3df8a', // '#fffcab',
+    },
+    // returns a light color from a specific sky type and sun height  
+    getLightColor: function (getLight=false) { // if false, we're getting fog, not light
+      let lightColor;
+      // if (skyType == 'color' || skyType == 'none'){
+      //   lightColor = new THREE.Color(this.environmentData.skyColor);
+      // }
+      // else if (skyType == 'gradient'){
+      //   lightColor = new THREE.Color(this.environmentData.horizonColor);
+      // }
+      // else 
+      // if (skyType == 'atmosphere')
+      // {
+
+      // if (this.sunPosition.y <= 0) {
+        // document.querySelector('#log').setAttribute('value', "<=0")
+        // document.querySelector('#log2').setAttribute('value', "#000")
+        // return '#000';
+      // }
+
+      let sunHeight = Math.min(1, this.sunPosition.y); // to make sure it's never a value higher than 1, which shouldn't happen under normal conditions anyways
+      let ratioA;
+      let ratioB;
+      let i = 0;
+      for (; i < this.gLC.fogRatios.length; i++){
+        if (sunHeight > this.gLC.fogRatios[i]){
+          if (/*this.sunOrMoonUp() &&*/ this.moon && sunHeight > 0) { // moon is up
+            ratioA = -1;
+            ratioB = 0;
+            // var c1 = new THREE.Color(this.gLC.lightColors[this.gLC.lightColors.length-1]);
+            // var c2 = new THREE.Color(this.gLC.moonsky);
+            i = this.gLC.fogRatios.length-1;
+          } else { // sun or stars without moon
+            ratioA = this.gLC.fogRatios[i];
+            ratioB = this.gLC.fogRatios[i - 1];
+          }
+            var c1 = new THREE.Color(this.gLC.lightColors[i - 1]); // index 0 - 1? never happens-- it's never > 1 (max .7), so index 0 is only ever c1, can never be c2 missing a c1
+            var c2 = new THREE.Color(this.gLC.lightColors[i]);
+
+          var a = ((sunHeight) - ratioA) / (ratioB - ratioA); // how far are we on the path from color 1 to color 2
+          // a = a > .99 ? (.7 - a-1) : a;
+          a = this.moon && sunHeight > 0 ? (1 - (a-1)) : a;
+          if (sunHeight < 0) a = .9
+          // console.log(this.cleanNumber(a));
+          try {
+            // if (a === .99 && this.moon && sunHeight > 0 ) {
+            //   c2.lerp(c1, NaN);
+            // } else {
+              c2.lerp(c1, a);
+            // }
+          } catch(e) {
+            debugger
+          }
+          lightColor = c2;
+          // ratio=i;
+          break;
+        }
+      }
+      // if (!lightColor) {
+      //   lightColor = "#000"
+      //   debugger
+      // }
+  
+      // }
+      // dim down the color
+      lightColor.multiplyScalar(getLight ? 1: 0.9);
+      
+      if (!getLight) { // therefore, getting fog
+        // mix fog a bit with ground color; for light, this happens within the light component
+        // lightColor.lerp(new THREE.Color(this.data.groundColor), 0.3);
+      }
+      
+      // document.querySelector('#log').setAttribute('value', 
+      //   ratioA + "|" + ratioB + "|"  + 
+      //   ((this.moon && sunHeight > 0) ?  this.gLC.lightColors[this.gLC.lightColors.length-1] : this.gLC.lightColors[i - 1]) + "|" + 
+      //   " a:"+ this.cleanNumber(a) + "|"+
+      //   ((this.moon && sunHeight > 0) ?  this.gLC.moonsky : this.gLC.lightColors[i])  +"|"+
+      //   // '#' + lightColor.getHexString() +
+      //   ((this.moon && sunHeight > 0) ? "| moon" : "| day") 
+      // )
+      document.querySelector('#color-show').setAttribute('material','color','#' + lightColor.getHexString())
+      // document.querySelector('#log2').setAttribute('value', this.gLC.lightColors[i])
+      return '#' + lightColor.getHexString();
+    },
+
+
     lightSourcesTick() {
         // this.offset = this.moon ? this.data.moonRise : this.data.sunRise;
         // this.el.setAttribute('rotation', 'y', -this.offset)
@@ -804,15 +863,18 @@ AFRAME.registerComponent('super-sky', {
               1 // shouldn't happen, flash to make reasoning error obvious
           this.lights.lightProps.intensity = this.starlight && !this.sunOrMoonUp() ? this.data.starlightIntensity : (0.1 + this.sunPos.y * this.lights.intensityMultiplier);
           this.lights.lightProps.intensity = this.lights.lightProps.intensity < this.data.starlightIntensity ? this.data.starlightIntensity : this.lights.lightProps.intensity;
+          // document.getElementById('lamp').setAttribute('light',this.lights.lightProps);
           // console.log(this.lights.lightProps.intensity, this.lights.intensityMultiplier)
           
-          this.lights.lightProps.color = 
-          this.moon && this.sunOrMoonUp() ? 
-            '#fffcab' : // moonlight blue
-          this.starlight ? 
-            '#fffed9' : // darker starlight blue
-          this.getLightColor(1); // calculated daylight color
 
+          this.lights.lightProps.color = 
+            // this.moon && this.sunOrMoonUp() ? 
+            //   '#fffcab' : // moonlight blue
+            // this.starlight ? 
+            //   '#fffed9' : // darker starlight blue
+            this.getLightColor(1); // calculated color
+
+          document.querySelector('#log2').setAttribute('value', this.lights.intensityMultiplier + " m=>i " + this.cleanNumber(this.lights.lightProps.intensity) + "  |s: " +  this.cleanNumber(this.sunPosition.y) + " |c " + this.lights.lightProps.color)
           delete this.lights.lightProps.castShadow; // delete because hemilight complains
         }
         // adding to garbage collection overhead--make all objects here into local re-used objects
@@ -843,6 +905,9 @@ AFRAME.registerComponent('super-sky', {
         }
     },
     
+    cleanNumber(n, f=100) {
+       return Math.floor(n * f)/f;
+    },
     sunOrMoonUp() { 
       this.getEighth();
       return this.currentEighth.which === 0 || this.currentEighth.which === 1 || this.currentEighth.which === 4 || this.currentEighth.which === 5;
@@ -861,3 +926,6 @@ AFRAME.registerComponent('super-sky', {
       // this.toD3.z = //-((this.cachedSkyRadius-10) * Math.cos(this.theta));
     // },
 });
+
+// sunrise // 
+// sunset // 
