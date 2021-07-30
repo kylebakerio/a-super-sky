@@ -18,10 +18,8 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - intensity-matching hemisphere light for a natural/appropriate ambient lighting to match the directional lighting
 
 # demos
-- play with live functioning code on glitch: https://glitch.com/edit/#!/remix/a-super-sky
-- this repo's demo html: index.html in this repo
-- this repo's live demo: https://kylebakerio.github.io/a-super-sky/
-- see live demo on glitch: https://a-super-sky.glitch.me/
+- play with live functioning code [on glitch](https://glitch.com/edit/#!/a-super-sky-2?path=index.html%3A5%3A26) ([as a page](https://a-super-sky-2.glitch.me/))
+- this repo's demo html: index.html in this repo [live](https://kylebakerio.github.io/a-super-sky/)
 
 # compatibility
 
