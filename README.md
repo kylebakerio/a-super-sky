@@ -10,11 +10,12 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 
 # features
 - sunrise, daytime, and sunset feature beautiful rayleigh scattering colors in the sky
-- `fog` component creates feeling of darkness after sunset, that then retreats as stars slowly fade into view
+- `fog` creates feeling of creeping shadowy darkness after sunset, that then retreats as stars slowly fade into view, without full cost of shadows
+- subtle 'colored' fog on the horizon adds a sense of depth to the day's different stages
 - moon rises and sets, creating a blue rayleigh glow in the sky
-- stars fade out, and then fog again comes in just to create a feeling of shadows retreating at dawn
-- real time lighting from the sun and moon! cast shadows
-- hemisphere light for matching correctly colored ambient lighting
+- at dawn, stars gently fade out, sky stars to go from soft blues to reds, and then fog again comes in just to create a feeling of shadows retreating as sun rises
+- now with real time lighting from the sun and moon! cast shadows
+- + hemisphere light for matching correctly colored ambient lighting, that adjusts intensity to match time of day
 
 # demos
 - play with live functioning code on glitch: https://glitch.com/edit/#!/remix/a-super-sky
