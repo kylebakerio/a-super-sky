@@ -1,3 +1,5 @@
+const THREE = window.THREE;
+const AFRAME = window.AFRAME;
 
 AFRAME.registerComponent('super-sky', {
     schema: {
@@ -91,6 +93,11 @@ AFRAME.registerComponent('super-sky', {
         default: 1,
       },
       skyRadius: {
+        // how far away the inner-sphere canvas that features the rayleigh sun/moon shader is
+        type: 'number',
+        default: 1000,
+      },
+      sunRadius: {
         // how far away the shadow-casting sun is
         type: 'number',
         default: 200,
@@ -151,6 +158,9 @@ AFRAME.registerComponent('super-sky', {
 
     },
     init: function () {
+      this.el.setAttribute('geometry', {primitive:'sphere',radius:this.data.skyRadius});
+      this.el.setAttribute('material',{shader:'sky',side:'back'});
+
       if (AFRAME.version === "1.0.4" || AFRAME.version === "1.1.0" || AFRAME.version[0] === "0") {
         if (this.data.debug) console.warn("detected pre 1.2.0, using old-style geometry for stars");
         this.version = 0;
@@ -272,7 +282,7 @@ AFRAME.registerComponent('super-sky', {
 
       // temp
       // document.getElementById('sun').setAttribute('geometry', 'radius', 500);
-      this.cachedSkyRadius = this.data.skyRadius // document.getElementById('sun').getAttribute('geometry').radius
+      this.cachedSkyRadius = this.data.sunRadius // document.getElementById('sun').getAttribute('geometry').radius
     },
 
     activeLights: [],
