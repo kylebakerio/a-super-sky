@@ -1,25 +1,40 @@
 <html>
   <head>
-    <script src="https://aframe.io/releases/1.1.0/aframe.min.js"></script>
-    <script src="super-sky.js"></script>
-    <!--     
-    <script src="https://gitcdn.xyz/repo/kylebakerio/a-super-sky/main/super-sky.js"></script> 
-    -->
-    <script src="https://unpkg.com/aframe-sun-sky@3.0.3/dist/aframe-sun-sky.js"></script>
-    <script src="https://gitcdn.xyz/repo/handeyeco/aframe-star-system-component/master/index.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://gitcdn.xyz/repo/aframevr/aframe/master/examples/test/shaders/shaders/sky.js"></script>
+    <!--  for 1.1.0 or earlyer    -->
+<!--     <script src="https://gitcdn.xyz/repo/handeyeco/aframe-star-system-component/master/index.js"></script> -->
+    <script src="https://gitcdn.xyz/repo/kylebakerio/a-super-sky/main/super-sky.js"></script>
   </head>
   <body>
-    <a-scene>
-      <a-sun-sky 
-        id="sun"
-        material="side: back; reileigh: 1; luminance: 1;"
-        super-sky="cycleDuration:.1";
-      ></a-sun-sky>
-      <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+<!--     <a-scene environment="preset:starry"> -->
+<!--       <a-camera id="the-cam" wasd-controls="fly:true;"></a-camera> -->
+    <a-scene rotation="0 0 0">
+        <a-entity camera
+                  id="the-cam"
+                  position="0 1.6 0"
+                  wasd-controls
+                  look-controls="pointerLockEnabled: false">
+        </a-entity>
+        <a-entity laser-controls="hand: left"></a-entity>
+        <a-entity laser-controls="hand: right"></a-entity>
+
+      <a-entity 
+        id="sky"
+        super-sky="sunbeamTarget: #the-cam; cycleDuration:.2; moonCycle: true; groundColor: #7BC8A4;";
+      ></a-entity>
+      
+      <a-sphere id="lamp" material="transparent:true; opacity:.1;"  position="0 6 -5" radius=".25" color="white">
+        <a-entity light="castShadow:true; type:point;intensity:.5"></a-entity>
+      </a-sphere>
+
       <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
-      <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="400" height="400" color="#7BC8A4"></a-plane>
-<!--       <a-sky color="#ECECEC"></a-sky> -->
+      <a-box shadow="cast:true;" position="-1 0.5 -3" rotation="0 45 0" color="white"></a-box>
+      <a-cylinder shadow="cast:true;" position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+      <a-cylinder shadow="cast:true;" position="4 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+      <a-cylinder shadow="cast:true;" position="8 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+      <a-cylinder shadow="cast:true;" position="12 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>      
+      <a-plane id="floor" shadow="receive:true;" position="0 0 -4" rotation="-90 0 0" width="400" height="400" color="#7BC8A4"></a-plane>
     </a-scene>
   </body>
 </html>
