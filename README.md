@@ -2,7 +2,7 @@
 <a href='https://ko-fi.com/kylev' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /><a/>
 
 fancy, lightweight, drop-in day-night sky component for A-Frame.
-Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component) for A-Frame 1.1.0 compatible stars; Also borrowed heavily from [https://github.com/supermedium/aframe-environment-component/commit/ab99293ee54826923212aca0dfc112d35b64d970](aframe-environment-component)'s "starry" preset, a static scene, that I used for the 1.2.0 stars and as a starting point for some lighting concepts.
+Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component) for A-Frame 1.1.0 compatible stars; Also borrowed heavily from [aframe-environment-component](https://github.com/supermedium/aframe-environment-component/commit/ab99293ee54826923212aca0dfc112d35b64d970)'s "starry" preset, a static scene, that I used for the 1.2.0 stars and as a starting point for some lighting and color concepts. Beyond those, this library adds fog to create a more appealing (imo) star fade in/out effect, stronger sunset effect, and also adds an entity that roughly tracks the sun/moon to allow shining a directional shadow-casting light source from the shader's "sun".
 
 ![sunset with dynamic colored sky](https://i.imgur.com/tzEqI6B.png)
 ![luminous moon + blue sky + stars](https://i.imgur.com/w6847An.png)
@@ -14,8 +14,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - moon rises and sets, creating a blue rayleigh glow in the sky
 - stars fade out, and then fog again comes in just to create a feeling of shadows retreating at dawn
 - real time lighting from the sun and moon! cast shadows
-- hemisphere light for matching ambient lighting
-- 
+- hemisphere light for matching correctly colored ambient lighting
 
 # demos
 - play with live functioning code on glitch: https://glitch.com/edit/#!/remix/a-super-sky
