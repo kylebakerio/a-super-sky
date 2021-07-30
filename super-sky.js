@@ -1,3 +1,6 @@
+const THREE = window.THREE;
+const AFRAME = window.AFRAME;
+
 AFRAME.registerComponent('super-sky', {
     schema: {
       cycleDuration: {
@@ -329,10 +332,15 @@ AFRAME.registerComponent('super-sky', {
       // if (skyType == 'atmosphere')
       // {
 
-      if (this.sunPosition.y <= 0) return '#000';
+      if (this.sunPosition.y <= 0) {
+        // document.querySelector('#log').setAttribute('value', "<=0")
+        // document.querySelector('#log2').setAttribute('value', "#000")
+        return '#000';
+      }
 
       let sunHeight = Math.min(1, this.sunPosition.y);
 
+      let ratio;
       for (var i = 0; i < this.gLC.fogRatios.length; i++){
         if (sunHeight > this.gLC.fogRatios[i]){
           var c1 = new THREE.Color(this.gLC.lightColors[i - 1]);
@@ -340,16 +348,18 @@ AFRAME.registerComponent('super-sky', {
           var a = (sunHeight - this.gLC.fogRatios[i]) / (this.gLC.fogRatios[i - 1] - this.gLC.fogRatios[i]);
           c2.lerp(c1, a);
           lightColor = c2;
+          ratio=i;
           break;
         }
       }
-
+  
       // }
       // dim down the color
       lightColor.multiplyScalar(dimFactor);
       // mix it a bit with ground color
       lightColor.lerp(new THREE.Color(this.data.groundColor), 0.3);
-
+      // document.querySelector('#log').setAttribute('value', this.gLC.fogRatios[i])
+      // document.querySelector('#log2').setAttribute('value', this.gLC.lightColors[i])
       return '#' + lightColor.getHexString();
     },
   
@@ -502,6 +512,9 @@ AFRAME.registerComponent('super-sky', {
           intensity: this.lights.lightProps.intensity, 
           multiplier: this.lights.intensityMultiplier
         })
+
+        // document.querySelector('#log').setAttribute('value', "fog: "+this.fogValue)
+        document.querySelector('#log2').setAttribute('value', 's: ' + this.currentEighthStarLoop.which + "/8; e: " + this.currentEighth.which + "/8")
       }
     },
     currentEighthStarLoop: { // dynamically set
@@ -538,6 +551,9 @@ AFRAME.registerComponent('super-sky', {
           intensity: this.lights.lightProps.intensity, 
           multiplier: this.lights.intensityMultiplier
         })
+        
+        // document.querySelector('#log').setAttribute('value', "fog: "+this.fogValue)
+        document.querySelector('#log2').setAttribute('value', 's: ' + this.currentEighthStarLoop.which + "/8; e: " + this.currentEighth.which + "/8")
       }
     },
     currentEighth: { // dynamically set
@@ -626,7 +642,9 @@ AFRAME.registerComponent('super-sky', {
         this.fogValue = this.currentEighthStarLoop.percent * this.fogRangeMax
         if (this.data.showStars && !this.moon && this.starlight) {
             this.starlight = false;
-            if (this.data.debug) console.log('starlight off', this.fogValue, this.howManyStars())
+            if (this.data.debug) {
+              console.log('starlight off', this.fogValue, this.howManyStars())
+            }
             if (this.version === 0) {
               this.starsOld.setAttribute('star-system', "count", 0);
             } else {
@@ -647,7 +665,6 @@ AFRAME.registerComponent('super-sky', {
       // if (this.data.debug) console.log('fogValue', this.fogValue,  this.currentEighthStarLoop.percent, this.fogRangeMax)
       if (this.fogValue < this.data.fogMin) this.fogValue = this.data.fogMin;
       
-
       this.el.sceneEl.setAttribute('fog', 'far', this.fogValue);
     },
     starlight: false, // dynamically set
@@ -696,36 +713,51 @@ AFRAME.registerComponent('super-sky', {
       turbidity: .8,
     },
     setSunSkyMaterial() {
+      // let label;
+      
       if (this.currentEighthStarLoop.which === 1) {
-        console.log("moon to sun", this.currentEighthStarLoop.which)
+        // 1
+        // console.log("moon to sun", this.currentEighthStarLoop.which)
+        // label = this.currentEighthStarLoop.which+' moon to sun; ';
         // from moon to sun
-        this.sunSkyMaterial.reileigh = this.data.moonReileigh + (this.currentEighthStarLoop.percent * (this.data.sunReiligh - this.data.moonReileigh))
-        this.sunSkyMaterial.luminance = this.data.moonLuminance + (this.currentEighthStarLoop.percent * (this.data.sunLuminance - this.data.moonLuminance))
-        this.sunSkyMaterial.turbidity = this.data.moonTurbidity + (this.currentEighthStarLoop.percent * (this.data.sunTurbidity - this.data.moonTurbidity))
+        this.sunSkyMaterial.reileigh = this.data.moonReileigh + (this.currentEighthStarLoop.percent * (this.data.sunReileigh - this.data.moonReileigh));
+        this.sunSkyMaterial.luminance = this.data.moonLuminance + (this.currentEighthStarLoop.percent * (this.data.sunLuminance - this.data.moonLuminance));
+        this.sunSkyMaterial.turbidity = this.data.moonTurbidity + (this.currentEighthStarLoop.percent * (this.data.sunTurbidity - this.data.moonTurbidity));
       }
-      else if (this.currentEighthStarLoop.which <= 3) {
-        console.log("sun", this.currentEighthStarLoop.which)
-
+      else if (this.currentEighthStarLoop.which === 2 || this.currentEighthStarLoop.which === 3) {
+        // 2 3
+        // console.log("sun", this.currentEighthStarLoop.which)
+        // label = this.currentEighthStarLoop.which+' sun; ';
         // straight sun
         this.sunSkyMaterial.reileigh = this.data.sunReileigh
         this.sunSkyMaterial.luminance = this.data.sunLuminance
         this.sunSkyMaterial.turbidity = this.data.sunTurbidity
       }
       else if (this.currentEighthStarLoop.which === 4) {
-        console.log('sun to moon')
+        // 4
+        // console.log('sun to moon')
         // sun to moon
-        this.sunSkyMaterial.reileigh = this.data.sunReileigh - (this.currentEighthStarLoop.percent * (this.data.sunReiligh - this.data.moonReileigh))
-        this.sunSkyMaterial.luminance = this.data.sunLuminance - (this.currentEighthStarLoop.percent * (this.data.sunLuminance - this.data.moonLuminance))
-        this.sunSkyMaterial.turbidity = this.data.sunTurbidity - (this.currentEighthStarLoop.percent * (this.data.sunTurbidity - this.data.moonTurbidity))
+        // label = this.currentEighthStarLoop.which+' sun to moon; ';
+        // 1 -(0.24266666666666703 * (1 - 0.1))
+        this.sunSkyMaterial.reileigh = (this.data.sunReileigh - (this.currentEighthStarLoop.percent * (this.data.sunReileigh - this.data.moonReileigh)) );
+        this.sunSkyMaterial.luminance = (this.data.sunLuminance - (this.currentEighthStarLoop.percent * (this.data.sunLuminance - this.data.moonLuminance)) );
+        this.sunSkyMaterial.turbidity = (this.data.sunTurbidity - (this.currentEighthStarLoop.percent * (this.data.sunTurbidity - this.data.moonTurbidity)) );
+        // debugger;
       }
-      else {
-        console.log('moon')
+      else if (this.currentEighthStarLoop.which) {
+        // 5 6 7 0
+        // console.log('moon')
         // straight moon
+        // label = this.currentEighthStarLoop.which+' moon; ';
         this.sunSkyMaterial.reileigh = this.data.moonReileigh
         this.sunSkyMaterial.luminance = this.data.moonLuminance
         this.sunSkyMaterial.turbidity = this.data.moonTurbidity
       }
       
+      // document.querySelector('#log2').setAttribute('value', label+"r: " +`${this.sunSkyMaterial.reileigh}`+"; l:" +this.sunSkyMaterial.luminance+"; t:"+this.sunSkyMaterial.turbidity)
+      // document.querySelector('#log').setAttribute('value', `sR:${this.data.sunReileigh} SL%:${Math.floor(this.currentEighthStarLoop.percent * 1000) / 1000} mR:${this.data.moonReileigh}`)
+      // console.log(this.currentEighthStarLoop.which, this.sunSkyMaterial.reileigh, `${this.data.sunReileigh} -(${this.currentEighthStarLoop.percent} * (${this.data.sunReileigh} - ${this.data.moonReileigh}))`)
+
       this.sunSkyMaterial.sunPosition = this.sunPosition // this.version === 0 ? this.sunPosition : this.sunPos
       // if (this.version === 0) {
       //   this.el.setAttribute('material', 'sunPosition', this.sunPosition);      
