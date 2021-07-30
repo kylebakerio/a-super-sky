@@ -33,24 +33,27 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - Tested working with 1.0.4, 1.1.0, and 1.2.0.
 
 # how to add
-** these instructions out of date, updating  demos for latest version soon **
 
 add sources to project:
+
+### >= 1.2.0
+add sources:
 ```html
-    <script src="/super-sky.js"></script> 
+    <script src="https://gitcdn.xyz/repo/aframevr/aframe/master/examples/test/shaders/shaders/sky.js"></script>
     <script src="https://unpkg.com/aframe-sun-sky@3.0.3/dist/aframe-sun-sky.js"></script>
+```
+
+### <= 1.1.0 (only tested as low as 1.0.4)
+add to the above:
+```html
     <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
 ```
 
 then add sky to your scene:
-```js
-      <a-scene>
-        <a-sun-sky 
-        id="sun"
-        material="side: back; reileigh: 1; luminance: 1;"
-        super-sky="cycleDuration:.1; moonCycle:true; showStars:true;";
-        ></a-sun-sky>
-      </a-scene>
+```html
+    <a-entity 
+        super-sky="shadowSize: 15; sunbeamTarget: #camera; cycleDuration:.2;  groundColor: #7BC8A4;";
+     ></a-entity>
 ```
 
 see super-sky.js schema for options. comments explain their use.
@@ -65,3 +68,6 @@ see super-sky.js schema for options. comments explain their use.
 - currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable.
 - minor tweaks to lighting 
 - finish building out options, update sources and demos to new version
+- correct spelling of 'reileigh' to 'rayleigh' everywhere.
+- new video showing improved version
+- document options in readme
