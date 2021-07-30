@@ -33,7 +33,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - Tested working with 1.0.4, 1.1.0, and 1.2.0.
 
 # how to add
-**out of date, updating soon**
+** these instructions out of date, updating  demos for latest version soon **
 
 add sources to project:
 ```html
