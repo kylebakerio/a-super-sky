@@ -10,12 +10,12 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 
 # features
 - sunrise, daytime, and sunset feature beautiful rayleigh scattering colors in the sky
-- `fog` creates feeling of creeping shadowy darkness after sunset, that then retreats as stars slowly fade into view, without full cost of shadows
-- subtle 'colored' fog on the horizon adds a sense of depth to the day's different stages
-- moon rises and sets, creating a blue rayleigh glow in the sky
-- at dawn, stars gently fade out, sky stars to go from soft blues to reds, and then fog again comes in just to create a feeling of shadows retreating as sun rises
-- now with real time lighting from the sun and moon! cast shadows
-- + hemisphere light for matching correctly colored ambient lighting, that adjusts intensity to match time of day
+- `fog` creates feeling of creeping shadowy darkness after sunset, that then retreats as stars slowly fade into view and light the scene, without the cost of the equivalent shadows
+- subtle 'colored' fog and lighting on the horizon adds a sense of depth and realism to the day and night's different stages
+- moon also rises and sets, creating a blue rayleigh glow in the sky
+- at dawn, stars gently fade out, sky stars to go from soft blues to pre-sawn reds, and then fog again comes in just to create a feeling of shadows retreating as sun rises
+- **now with real time lighting from the sun and moon! cast shadows**
+- intensity-matching hemisphere light for a natural/appropriate ambient lighting to match the directional lighting
 
 # demos
 - play with live functioning code on glitch: https://glitch.com/edit/#!/remix/a-super-sky
@@ -27,7 +27,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 
 ## System Resources
 - runs easily in oculus quest 2's native browser. seems to run super smooth in cardboard as well.
-- to reduce resource demands, reduce `starCount` and add `throttle`.
+- if desired, throttle to reduce resource needs, and just make cycleDuration longer to slow the day down to match.
 
 ## A-Frame version
 - Tested working with 1.0.4, 1.1.0, and 1.2.0.
@@ -60,14 +60,12 @@ see super-sky.js schema for options. comments explain their use.
 
 
 # TODO:
-- one little sudden brightness flash after sunset / darkness before sunrise that is too abrupt and not quite right
-- better method for changing moon rise/set position than a-scene rotation
-- enable better control of sun/moon trajectory through sky
-- code could be cleaner and more well tested--it's really something I shared as soon as I threw it together and got it working. "Better rough than never."
-- slightly rotate world while stars are in sky to create star movement
-- currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable.
-- minor tweaks to lighting 
+- better method for changing moon rise/set position than a-scene rotation? finishing implementing rotation option
+- slightly rotate stars over the course of a night
+- enable better control of sun/moon trajectory through sky (allow e.g. lower moon)
+- more code cleanup and testing
+- currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable--maybe speeding up or skipping phases when neither sun nor moon
 - finish building out options, update sources and demos to new version
-- correct spelling of 'reileigh' to 'rayleigh' everywhere.
-- new video showing improved version
-- document options in readme
+- correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo
+- new video showing improved version with shadows, but also correct lighting color and intensity gradients
+- document schema options in readme
