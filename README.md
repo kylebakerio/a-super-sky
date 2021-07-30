@@ -36,7 +36,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 **out of date, updating soon**
 
 add sources to project:
-```
+```html
     <script src="/super-sky.js"></script> 
     <script src="https://unpkg.com/aframe-sun-sky@3.0.3/dist/aframe-sun-sky.js"></script>
     <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
