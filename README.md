@@ -6,7 +6,8 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 
 ![sunset with dynamic colored sky](https://i.imgur.com/tzEqI6B.png)
 ![luminous moon + blue sky + stars](https://i.imgur.com/w6847An.png)
-![day - moon cycle](https://user-images.githubusercontent.com/6391152/127586529-8ef34e7f-1884-404f-9838-39e6958eade5.mp4)
+[![low-framerate youtube video](https://user-images.githubusercontent.com/6391152/127749044-f1edcb30-30a3-4f96-833d-368ef337171c.png
+)](https://youtu.be/zBQkfGUzMuY)
 
 # features
 - sunrise, daytime, and sunset feature beautiful rayleigh scattering colors in the sky
@@ -59,6 +60,7 @@ then add a super-sky entity to your scene:
 if you want shadows, add the `shadow` component to entities that you want to cast shadows and receive shadows (allow shadows to be casted upon):
 ```html
     <a-sphere shadow="cast:true; receive:true;"></a-sphere>
+    <a-plane shadow="cast:false; receive:true;"></a-plane>
 ```
 
 see super-sky.js schema for options. comments explain their use.
