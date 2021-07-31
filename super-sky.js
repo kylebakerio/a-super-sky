@@ -1,6 +1,3 @@
-const THREE = window.THREE;
-const AFRAME = window.AFRAME;
-
 AFRAME.registerComponent('super-sky', {
     schema: {
       cycleDuration: {
@@ -93,11 +90,6 @@ AFRAME.registerComponent('super-sky', {
         default: 1,
       },
       skyRadius: {
-        // how far away the inner-sphere canvas that features the rayleigh sun/moon shader is
-        type: 'number',
-        default: 1000,
-      },
-      sunRadius: {
         // how far away the shadow-casting sun is
         type: 'number',
         default: 200,
@@ -158,9 +150,6 @@ AFRAME.registerComponent('super-sky', {
 
     },
     init: function () {
-      this.el.setAttribute('geometry', {primitive:'sphere',radius:this.data.skyRadius});
-      this.el.setAttribute('material',{shader:'sky',side:'back'});
-
       if (AFRAME.version === "1.0.4" || AFRAME.version === "1.1.0" || AFRAME.version[0] === "0") {
         if (this.data.debug) console.warn("detected pre 1.2.0, using old-style geometry for stars");
         this.version = 0;
@@ -282,7 +271,7 @@ AFRAME.registerComponent('super-sky', {
 
       // temp
       // document.getElementById('sun').setAttribute('geometry', 'radius', 500);
-      this.cachedSkyRadius = this.data.sunRadius // document.getElementById('sun').getAttribute('geometry').radius
+      this.cachedSkyRadius = this.data.skyRadius // document.getElementById('sun').getAttribute('geometry').radius
     },
 
     activeLights: [],
@@ -619,9 +608,10 @@ AFRAME.registerComponent('super-sky', {
     },
 
     glc: {
-      fogRatios: [        1,       0.5,      0.22,       0.1,      0.05,      0, -1],
+      fogRatios: [        1,       0.5,      0.22,       0.1,      0.05,      0,        -1],
       lightColors: ['#C0CDCF', '#81ADC5', '#525e62', '#2a2d2d', '#141616', '#000', '#e3e1aa' /*'#fffed9'*/],
-      moonsky: '#e3df8a', // '#fffcab',
+      starBrightRange: {start:{which:3},end:{which:6}}
+      // moonsky: '#e3df8a', // '#fffcab',
     },
     
     // returns a light color from a specific sky type and sun height  
@@ -635,7 +625,7 @@ AFRAME.registerComponent('super-sky', {
       for (; this.glc.i < this.glc.fogRatios.length; this.glc.i++){
         if (this.glc.sunHeight > this.glc.fogRatios[this.glc.i]){
           if (this.moon && this.glc.sunHeight > 0) { // moon is up
-            this.glc.ratioA = -1;
+            this.glc.ratioA = -1; // lock to last two night colors while moon is up, instead of going through daylight colors
             this.glc.ratioB = 0;
             // never understood why this method wouldn't work, but found a different workaround that is doing well now.
             // var c1 = new THREE.Color(this.glc.lightColors[this.glc.lightColors.length-1]);
@@ -649,8 +639,24 @@ AFRAME.registerComponent('super-sky', {
           this.glc.c2 = new THREE.Color(this.glc.lightColors[this.glc.i]);
 
           this.glc.a = ((this.glc.sunHeight) - this.glc.ratioA) / (this.glc.ratioB - this.glc.ratioA); // how far are we on the path from color 1 to color 2
-          this.glc.a = this.moon && this.glc.sunHeight > 0 ? (1 - (this.glc.a-1)) : this.glc.a;
-          if (this.glc.sunHeight < 0) this.glc.a = .9
+          this.glc.a = this.moon && this.glc.sunHeight > 0 ? (1 - (this.glc.a-1)) : this.glc.a; // handle negative sun range values
+          if (this.inRange(this.glc.starBrightRange)) {
+            // lock at certain shade of white while the stars are up
+            if (this.glc.a > .29) this.glc.a = .29
+          }
+          // console.log(this.inRange(this.glc.starBrightRange))
+          // if (this.glc.sunHeight < 0) this.glc.a = .99;
+          // if (this.glc.sunHeight < 0) this.glc.a = this.glc.a-1//.99;
+      
+          // document.querySelector('#log').setAttribute('value', 
+          //   this.glc.ratioA + "|" + this.glc.ratioB + "|"  + 
+          //   ((this.moon && this.glc.sunHeight > 0) ?  this.glc.lightColors[this.glc.lightColors.length-1] : this.glc.lightColors[this.glc.i - 1]) + "|" + 
+          //   " a:"+ this.cleanNumber(this.glc.a,100,!!'fixedlengthstring') + "|"+
+          //   (/*(this.moon && this.glc.sunHeight > 0) ?  this.glc.moonsky : */this.glc.lightColors[this.glc.i])  +"|"+
+          //   // '#' + lightColor.getHexString() +
+          //   ((this.moon && this.glc.sunHeight > 0) ? "| moon" : "| day") 
+          // )
+          
           this.glc.c2.lerp(this.glc.c1, this.glc.a);
           this.glc.lightColor = this.glc.c2;
           break;
@@ -666,19 +672,28 @@ AFRAME.registerComponent('super-sky', {
         // removed, because it was always too 'bright'--wanted it more 'black' at night, not a halo
       }
       
-      // document.querySelector('#log').setAttribute('value', 
-      //   ratioA + "|" + ratioB + "|"  + 
-      //   ((this.moon && sunHeight > 0) ?  this.glc.lightColors[this.glc.lightColors.length-1] : this.glc.lightColors[i - 1]) + "|" + 
-      //   " a:"+ this.cleanNumber(a) + "|"+
-      //   ((this.moon && sunHeight > 0) ?  this.glc.moonsky : this.glc.lightColors[i])  +"|"+
-      //   // '#' + lightColor.getHexString() +
-      //   ((this.moon && sunHeight > 0) ? "| moon" : "| day") 
-      // )
-      // document.querySelector('#color-show').setAttribute('material','color','#' + lightColor.getHexString())
-      // document.querySelector('#log2').setAttribute('value', this.glc.lightColors[i])
+      // document.querySelector('#color-show').setAttribute('material','color','#' + this.glc.lightColor.getHexString())
+      // document.querySelector('#log2').setAttribute('value', this.glc.lightColor.getHexString())
       return '#' + this.glc.lightColor.getHexString();
     },
 
+    inRange(startEnd){
+      // takes in object like:
+      // {start:{which:1,percent:.33}, end:{which:4,percent:.66}} // percent is optional
+      // start and end which and percent are inclusive, so "start which 1 end which 4" (Without percent) means from 0% of 1 until 100% of 4.
+      if (startEnd.start.which > this.currentEighth.which || startEnd.end.which < this.currentEighth.which) {
+        return false
+      } 
+      if (!startEnd.start.hasOwnProperty('percent') && !startEnd.end.hasOwnProperty('percent')) {
+        return true
+      }
+      if (startEnd.start.percent > this.currentEighth.percent || startEnd.end.percent < this.currentEighth.percent) {
+        return false
+      }
+      else {
+        return true
+      }
+    },
 
     lightSourcesTick() {
         // this.offset = this.moon ? this.data.moonRise : this.data.sunRise;
@@ -732,8 +747,24 @@ AFRAME.registerComponent('super-sky', {
         }
     },
     
-    cleanNumber(n, f=100) {
-       return Math.floor(n * f)/f;
+    cN: 0,
+    cleanNumber(n, f=100, fixedLengthString=false) {
+      this.cN = Math.floor(n * f)/f;
+      // console.log(f, this.cN, this.cN.toString().length < f.toString().length)
+      return fixedLengthString ? this.fixedLength(this.cN,f.toString().length,"0") : this.cN;
+    },
+  
+    fixedLength(input,length,padChar=" ") {
+      let output = input.toString();
+      if (typeof input === "number" && input < 1 && input != 0) {
+        // console.log(output)
+        output =  "."+output.split('.')[1].toString()
+      }
+      // console.log(input,output)
+      while(output.length < length) {
+        output+=padChar;
+      }
+      return output;
     },
     sunOrMoonUp() { 
       this.getEighth();
