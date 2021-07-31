@@ -16,6 +16,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - at dawn, stars gently fade out, sky stars to go from soft blues to pre-sawn reds, and then fog again comes in just to create a feeling of shadows retreating as sun rises
 - **now with real time lighting from the sun and moon! cast shadows**
 - intensity-matching hemisphere light for a natural/appropriate ambient lighting to match the directional lighting
+- all light sources can be enabled/disabled/adjusted
 
 # demos
 - play with live functioning code [on glitch](https://glitch.com/edit/#!/a-super-sky-2?path=index.html%3A5%3A26) ([as a page](https://a-super-sky-2.glitch.me/))
@@ -23,13 +24,13 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 
 # compatibility
 
-## System Resources
+## System Resources + Performance
 - runs easily in oculus quest 2's native browser. seems to run super smooth in cardboard as well.
 - if desired, throttle to reduce resource needs, and just make cycleDuration longer to slow the day down to match.
+- you can remove light sources and she shadow-casting sun to further lighten the load.
 
 ## A-Frame version
 - Tested working with 1.0.4, 1.1.0, and 1.2.0.
-
 # how to add
 
 add sources to project:
@@ -47,11 +48,17 @@ add to the above:
     <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
 ```
 
-then add sky to your scene:
+then add a super-sky entity to your scene:
+(it's recommended that you set `sunbeamTarget` to the selector that matches your user's camera)
 ```html
     <a-entity 
         super-sky="shadowSize: 15; sunbeamTarget: #camera; cycleDuration:.2;  groundColor: #7BC8A4;";
      ></a-entity>
+```
+
+if you want shadows, add the `shadow` component to entities that you want to cast shadows and receive shadows (allow shadows to be casted upon):
+```html
+    <a-sphere shadow="cast:true; receive:true;"></a-sphere>
 ```
 
 see super-sky.js schema for options. comments explain their use.
@@ -67,3 +74,4 @@ see super-sky.js schema for options. comments explain their use.
 - correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo
 - new video showing improved version with shadows, but also correct lighting color and intensity gradients
 - document schema options in readme
+- explain how to work with shadowbox, point to shadow documentation
