@@ -56,9 +56,9 @@ add to the above:
 then add a super-sky entity to your scene:
 (it's recommended that you set `sunbeamTarget` to the selector that matches your user's camera)
 ```html
-    <a-entity 
-        super-sky="shadowSize: 15; sunbeamTarget: #camera; cycleDuration:.2;  groundColor: #7BC8A4;";
-     ></a-entity>
+    <a-sky 
+        super-sky="cycleDuration: 1;  groundColor: #7BC8A4;";
+     ></a-sky>
 ```
 
 if you want shadows, add the `shadow` component to entities that you want to cast shadows and receive shadows (allow shadows to be casted upon):
@@ -66,9 +66,10 @@ if you want shadows, add the `shadow` component to entities that you want to cas
     <a-sphere shadow="cast:true; receive:true;"></a-sphere>
     <a-plane shadow="cast:false; receive:true;"></a-plane>
 ```
-
-see super-sky.js schema for options. comments explain their use.
-see glitch demo or repo index.html (referenced above in this readme) for live examples if unclear.
+- `cycleDuration` is how long 1 sun loop takes (in minutes). By default, a full day is twice this length.
+- `groundColor` should be set manually, and is used to calculate more realistic light color.
+- see super-sky.js schema for other options. comments explain their use.
+- see glitch demo or repo index.html (referenced above in this readme) for live examples if unclear.
 
 
 # TODO:
