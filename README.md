@@ -1,16 +1,16 @@
+
+
 # a-super-sky
 <a href='https://ko-fi.com/kylev' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /><a/>
 
 fancy, lightweight, drop-in day-night sky component for A-Frame.
 Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component) for A-Frame 1.1.0 compatible stars; Also borrowed heavily from [aframe-environment-component](https://github.com/supermedium/aframe-environment-component/commit/ab99293ee54826923212aca0dfc112d35b64d970)'s "starry" preset, a static scene, that I used for the 1.2.0 stars and as a starting point for some lighting and color concepts. Beyond those, this library adds fog to create a more appealing (imo) star fade in/out effect, stronger sunset effect, and also adds an entity that roughly tracks the sun/moon to allow shining a directional shadow-casting light source from the shader's "sun". Significant effort has been spent creating smooth transitions between all of these moving parts to create a coherent environment.
 
-![sunset with dynamic colored sky](https://i.imgur.com/tzEqI6B.png)
-![luminous moon + blue sky + stars](https://i.imgur.com/w6847An.png)
+![moonlight-promo-19](https://user-images.githubusercontent.com/6391152/127781724-e853270a-4137-4f92-953d-2b18089b691e.png)
+![sunset-room-shadow](https://user-images.githubusercontent.com/6391152/127781727-df5d3e28-438c-4577-8133-92c27a6de13c.png)
+![sunset4444](https://user-images.githubusercontent.com/6391152/127782078-414efd10-58e7-4e01-bc4a-73d12b3f531d.png)
 ![sunset-room-shadow](https://user-images.githubusercontent.com/6391152/127769302-772c0c2d-246e-4c7e-87dd-f4a94e7b77b7.png)
-![room-shadow-moon](https://user-images.githubusercontent.com/6391152/127769311-f18e20b6-0271-41b8-9bfb-4008d90225a5.png)
-![shadow-9](https://user-images.githubusercontent.com/6391152/127769131-d54a4fab-2cc6-41ab-9abf-21156bcdabb8.png)
-[![low-framerate youtube video](https://user-images.githubusercontent.com/6391152/127768942-4bd9e9bc-bee8-40f6-be3e-cb2defd45329.png
-)](https://youtu.be/zBQkfGUzMuY)
+
 
 # features!
 
@@ -30,12 +30,13 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 # compatibility
 
 ## System Resources + Performance
-- runs easily in oculus quest 2's native browser. seems to run super smooth in cardboard as well.
+- runs easily in oculus quest 2's native browser. this even runs smoothly in google cardboard, it seems.
 - if desired, throttle to reduce resource needs, and just make cycleDuration longer to slow the day down to match.
-- you can remove light sources and she shadow-casting sun to further lighten the load.
+- you can remove light sources and the shadow-casting sun to further lighten the load.
 
 ## A-Frame version
 - Tested working with 1.0.4, 1.1.0, and 1.2.0.
+
 # how to add
 
 add sources to project:
