@@ -19,9 +19,9 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - subtle 'colored' fog and lighting on the horizon adds a sense of depth and realism to the day and night's different stages
 - moon also rises and sets, creating a blue rayleigh glow in the sky
 - at dawn, stars gently fade out, sky stars to go from soft blues to pre-sawn reds, and then fog again comes in just to create a feeling of shadows retreating as sun rises
-- **now with real time lighting from the sun and moon! cast shadows**
+- **now with real time shadow-casting lighting from the sun and moon!**
 - intensity-matching hemisphere light for a natural/appropriate ambient lighting to match the directional lighting
-- all light sources can be enabled/disabled/adjusted
+- all light sources can be enabled/disabled/adjusted, and have sane, natural feeling defaults (e.g., softer light from stars, soft light from moon)
 
 # demos
 - play with live functioning code [on glitch](https://glitch.com/edit/#!/a-super-sky-demo?path=index.html%3A1%3A0) ([as a page](https://a-super-sky-demo.glitch.me/))
