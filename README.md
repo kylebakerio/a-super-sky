@@ -74,6 +74,6 @@ see super-sky.js schema for options. comments explain their use.
 - currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable--maybe speeding up or skipping phases when neither sun nor moon
 - finish building out options, update sources and demos to new version
 - correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo
-- new video showing improved version with shadows, but also correct lighting color and intensity gradients
+- better video
 - document schema options in readme
 - explain how to work with shadowbox, point to shadow documentation
