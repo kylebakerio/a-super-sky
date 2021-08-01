@@ -6,10 +6,14 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 
 ![sunset with dynamic colored sky](https://i.imgur.com/tzEqI6B.png)
 ![luminous moon + blue sky + stars](https://i.imgur.com/w6847An.png)
-[![low-framerate youtube video](https://user-images.githubusercontent.com/6391152/127749044-f1edcb30-30a3-4f96-833d-368ef337171c.png
+![sunset-room-shadow](https://user-images.githubusercontent.com/6391152/127769302-772c0c2d-246e-4c7e-87dd-f4a94e7b77b7.png)
+![room-shadow-moon](https://user-images.githubusercontent.com/6391152/127769311-f18e20b6-0271-41b8-9bfb-4008d90225a5.png)
+![shadow-9](https://user-images.githubusercontent.com/6391152/127769131-d54a4fab-2cc6-41ab-9abf-21156bcdabb8.png)
+[![low-framerate youtube video](https://user-images.githubusercontent.com/6391152/127768942-4bd9e9bc-bee8-40f6-be3e-cb2defd45329.png
 )](https://youtu.be/zBQkfGUzMuY)
 
-# features
+# features!
+
 - sunrise, daytime, and sunset feature beautiful rayleigh scattering colors in the sky
 - `fog` creates feeling of creeping shadowy darkness after sunset, that then retreats as stars slowly fade into view and light the scene, without the cost of the equivalent shadows
 - subtle 'colored' fog and lighting on the horizon adds a sense of depth and realism to the day and night's different stages
@@ -20,7 +24,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - all light sources can be enabled/disabled/adjusted
 
 # demos
-- play with live functioning code [on glitch](https://glitch.com/edit/#!/a-super-sky-2?path=index.html%3A5%3A26) ([as a page](https://a-super-sky-2.glitch.me/))
+- play with live functioning code [on glitch](https://glitch.com/edit/#!/a-super-sky-demo?path=index.html%3A1%3A0) ([as a page](https://a-super-sky-demo.glitch.me/))
 - this repo's demo html: index.html in this repo [live](https://kylebakerio.github.io/a-super-sky/)
 
 # compatibility
@@ -40,13 +44,13 @@ add sources to project:
 add sources:
 ```html
     <script src="https://gitcdn.xyz/repo/aframevr/aframe/master/examples/test/shaders/shaders/sky.js"></script>
-    <script src="https://unpkg.com/aframe-sun-sky@3.0.3/dist/aframe-sun-sky.js"></script>
+    <script src="https://gitcdn.xyz/repo/kylebakerio/a-super-sky/main/super-sky.js"></script>
 ```
 
 ### <= 1.1.0 (only tested as low as 1.0.4)
 add to the above:
 ```html
-    <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
+     <script src="https://gitcdn.xyz/repo/handeyeco/aframe-star-system-component/master/index.js"></script>
 ```
 
 then add a super-sky entity to your scene:
@@ -64,6 +68,7 @@ if you want shadows, add the `shadow` component to entities that you want to cas
 ```
 
 see super-sky.js schema for options. comments explain their use.
+see glitch demo or repo index.html (referenced above in this readme) for live examples if unclear.
 
 
 # TODO:
@@ -74,6 +79,6 @@ see super-sky.js schema for options. comments explain their use.
 - currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable--maybe speeding up or skipping phases when neither sun nor moon
 - finish building out options, update sources and demos to new version
 - correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo
-- better video
+- new video showing improved version with shadows, but also correct lighting color and intensity gradients
 - document schema options in readme
 - explain how to work with shadowbox, point to shadow documentation
