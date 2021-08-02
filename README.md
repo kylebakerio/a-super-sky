@@ -8,7 +8,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 ![sunset-room-shadow](https://user-images.githubusercontent.com/6391152/127769302-772c0c2d-246e-4c7e-87dd-f4a94e7b77b7.png)
 
 # features!
-- highly tunable, and adjustable, and performant
+- highly performant out of the box even with maximum settings enabled
 - sunrise, daytime, and sunset feature beautiful rayleigh scattering colors in the sky
 - `fog` creates feeling of creeping shadowy darkness after sunset, that then retreats as stars slowly fade into view and light the scene, without the cost of the equivalent shadows
 - subtle 'colored' fog and lighting on the horizon adds a sense of depth and realism to the day and night's different stages
