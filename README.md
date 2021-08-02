@@ -8,7 +8,6 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 
 ![moonlight-promo-19](https://user-images.githubusercontent.com/6391152/127781724-e853270a-4137-4f92-953d-2b18089b691e.png)
 ![sunset-room-shadow](https://user-images.githubusercontent.com/6391152/127769302-772c0c2d-246e-4c7e-87dd-f4a94e7b77b7.png)
-![sunset4444](https://user-images.githubusercontent.com/6391152/127782078-414efd10-58e7-4e01-bc4a-73d12b3f531d.png)
 
 # features!
 
