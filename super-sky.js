@@ -1,10 +1,69 @@
-const AFRAME = window.AFRAME
-const THREE = window.THREE
+AFRAME.registerPrimitive('a-super-sky', {
+  defaultComponents: {
+    // mimic the a-sky primitive, to paint our shader on the inside of a sphere as designed
+    // https://github.com/aframevr/aframe/blob/master/src/extras/primitives/primitives/a-sky.js
+    geometry: {
+      primitive: 'sphere',
+      // radius: 500, // see default 'sunshaderdistance' in component
+      segmentsWidth: 64,
+      segmentsHeight: 32
+    },
+    material: {
+      // color: '#FFF',
+      // shader: 'flat',
+      side: 'back',
+      npot: true
+    },
+    scale: '-1 1 1',
+    'super-sky': {},
+  },
+  mappings: {
+    static: 'super-sky.static',    
+    cycleduration: 'super-sky.cycleduration',
+    throttle: 'super-sky.throttle',
+    starttime: 'super-sky.starttime',
+    startpercent: 'super-sky.startpercent',
+    mooncycle: 'super-sky.mooncycle',
+    disablefog: 'super-sky.disablefog',
+    fogmin: 'super-sky.fogmin',
+    showstars: 'super-sky.showstars',
+    starcount: 'super-sky.starcount',
+    starlightintensity: 'super-sky.starlightintensity',
+    starloopstart: 'super-sky.starloopstart',
+    showhemilight: 'super-sky.showhemilight',
+    showsurfacelight: 'super-sky.showsurfacelight',
+    showshadowlight: 'super-sky.showshadowlight',
+    groundcolor: 'super-sky.groundcolor',
+    sunbeamdistance: 'super-sky.sunbeamdistance',
+    starfielddistance: 'super-sky.starfielddistance',
+    sunshaderdistance: 'super-sky.sunshaderdistance',
+    sunbeamtarget: 'super-sky.sunbeamtarget',
+    shadowsize: 'super-sky.shadowsize',
+    seed: 'super-sky.seed',
+    moonreileigh: 'super-sky.moonreileigh',
+    moonluminance: 'super-sky.moonluminance',
+    moonturbidity: 'super-sky.moonturbidity',
+    moonintensity: 'super-sky.moonintensity',
+    sunintensity: 'super-sky.sunintensity',
+    sunreileigh: 'super-sky.sunreileigh',
+    sunluminance: 'super-sky.sunluminance',
+    sunturbidity: 'super-sky.sunturbidity',
+    sunriseoffset: 'super-sky.sunriseoffset',
+    moonriseoffset: 'super-sky.moonriseoffset',
+    'super-sky-debug': 'super-sky.debug',
+  }
+});
+
 
 AFRAME.registerComponent('super-sky', {
-    schema: {
-      cycleDuration: {
-        // time for one sun cycle. If moon cycle is enabled, then a full day will be twice this length.
+   schema: {
+      static:{
+        // not yet implemented
+        type: 'boolean',
+        default: false,
+      },
+      cycleduration: {
+        // time for one sun cycle. if moon cycle is enabled, then a full day will be twice this length.
         type: 'number',
         default: 1, // in minutes
       },
@@ -17,57 +76,69 @@ AFRAME.registerComponent('super-sky', {
         type: 'number',
         default: 10, // min ms to wait before recalculating sky change since last calculation; e.g., 10 = 100fps cap
       },      
-      startTime: {
-        // this will be auto-set to Date.now(), but you can specify a start time to sync the sky to other
+      starttime: {
+        // this will be auto-set to date.now(), but you can specify a start time to sync the sky to other
         // users or to a consistent in-world epoch time.
         // not currently working
         type: 'number',
         default: 0,
       },
-      skipPercentInit: {
+      startpercent: {
         // percent of full day/night (or day, if moon cycle disabled) to skip at initialization
+        // .83 = start at 83% of a full cycle
         // not currently working
         type: 'number',
         default: 0,
       },
       
-      moonCycle: {
-        // turn on/off moon cycle; also turns off stars. Nights are 'just black' when false.
+      mooncycle: {
+        // turn on/off moon cycle; also turns off stars. nights are 'just black' when false.
         // relies on setting and controlling 'fog' component for a-scene.
         // night becomes 3x length, and features a 'moon' for 1/3 of that
         type: 'boolean',
         default: true,
       },
 
-      disableFog: {
-        // not yet implemented
+      disablefog: {
         type: 'boolean',
         default: false,
       },
-      fogMin: {
+      fogmin: {
         // how far you can see when night is at its darkest
         // which is, how close the shadows creep in to the user
         type: 'number',
         default: 70, // number from 0 -> 360
       },
 
-      showStars: {
+      showstars: {
         // use if you want to show moon, but no stars
         type: 'boolean',
         default: true,
       },
-      starCount: {
+      starcount: {
         // how many stars to show at night
         type: 'number',
         default: 2000,
       },
-      starlightIntensity: {
+      starlightintensity: {
         // used as minimum light intensity at any time of active lights, which is,
         // how bright ambient lighting is when only stars are out
         type: 'number',
         default: 0.1, //number from 0 to 1
       },
-      starLoopStart: {
+      moonintensity: {
+        // how bright the actual light from the moon is
+        // this is just a multiplier used, actual value is dynamic according to position in sky
+        type: 'number',
+        default: 0.05, //number from 0 to 1
+      },
+      sunintensity: {
+        // how bright the actual light from the moon is
+        // this is just a multiplier used, actual value is dynamic according to position in sky
+        type: 'number',
+        default: 0.5, //number from 0 to 1
+      },
+      starloopstart: {
         // you shouldn't touch this.
         // sets offset (compare with no offset at 180) of when stars should rise and fog should creep in
         // code treats this as a constant, likely will break things if adjusted
@@ -76,57 +147,57 @@ AFRAME.registerComponent('super-sky', {
         // should have been 20, not 200. derp. that is where the forwarrd offset by ~2/8 comes from.
       },
 
-      showHemiLight: {
+      showhemilight: {
         type: 'boolean',
         default: true,
       },
-      showSurfaceLight: {
+      showsurfacelight: {
         type: 'boolean',
         default: false,
       },
-      showShadowLight: {
+      showshadowlight: {
         type: 'boolean',
         default: true,
       },
-      groundColor: {
+      groundcolor: {
         // gets mixed in for calculations about sunlight colors, fog color
         type: 'color',
         default: '#553e35',
       },
 
-      sunbeamDistance: {
+      sunbeamdistance: {
         // how far away the shadow-casting sun is
         // while the shader for the sun/moon can be virtually any length,
         // if the sunbeam light source is too far away, shadows don't work properly
-        // should always be at least a few meters smaller than the sunshaderDistance,
+        // should always be at least a few meters smaller than the sunshaderdistance,
         // but no camera movement = any distance works, and less camera movement = more distance works
         type: 'number',
-        default: 200,
+        default: 900,
       },
-      starfieldDistance: {
+      starfielddistance: {
         // how far away the stars are
         // correct distance is important to make sure fog shows/hides them with correct timing
-        // should be within (so, smaller than) the sunshaderDistance
+        // should be within (so, smaller than) the sunshaderdistance
         // starfield depth will be auto-set to be the difference between starfield and shader,
         type: 'number',
         default: 200,        
       },
-      sunshaderDistance: {
-        // the 'sun'/'moon' you see is projected on the inside of a sphere. This can be any distance by itself,
+      sunshaderdistance: {
+        // the 'sun'/'moon' you see is projected on the inside of a sphere. this can be any distance by itself,
         // however, if too close, you'll 'run into' it (creating a 'truman show' effect), but the further the discrepancy
         // between this and sunbeam, the more 'off' the shadows and reflections will feel from the shader
         type: 'number',
-        default: 500,
+        default: 1000,
       },
-
-      sunbeamTarget: {
+     
+      sunbeamtarget: {
         // target of directional sunlight that casts shadows
         // see: https://aframe.io/docs/1.2.0/components/light.html#directional
-        // and: https://threejs.org/docs/#api/en/lights/DirectionalLight
+        // and: https://threejs.org/docs/#api/en/lights/directionallight
         type: 'string',
         default: "[camera]",
       },
-      shadowSize: {
+      shadowsize: {
         // size of shadow-casting beam of directional light 
         // smaller is more performant, but cuts off shadow calculation within a tighter box around the target
         type: 'number',
@@ -134,55 +205,52 @@ AFRAME.registerComponent('super-sky', {
       },
 
       seed: {
-        // currently only used for star position in AFRAME >=1.2.0
+        // currently only used for star position in aframe >=1.2.0
         type: 'number',
         default: 1,
       },
       
       // shader variations between night and day:
-      // moonHeight // todo
-      moonReileigh: {
-         // minimum light intensity at any time of active lights
+      // moonheight // todo
+      moonreileigh: {
+        //number from 0 to 1; higher causes more red in the sky
         type: 'number',
-        default: 0.1, //number from 0 to 1
+        default: 0.1, 
       },
-      moonLuminance: {
-         // minimum light intensity at any time of active lights
+      moonluminance: {
+        // recommended range: 1.09 to 1.19; 1.18 creates a beautiful halo; 1.19 creates a serene, simple moon; go higher, things get weird; go lower, skyline turns red 
         type: 'number',
-        default: 1.18, //number from 0 to 1
+        default: 1.18,
       },
-      moonTurbidity: {
-         // minimum light intensity at any time of active lights
+      moonturbidity: {
+         //number from 0 to 1 // moon aura size, especially at sunrise/sunset
         type: 'number',
-        default: .3, //number from 0 to 1
+        default: .3,
       },
-      sunReileigh: {
-         // minimum light intensity at any time of active lights
-        type: 'number',
-        default: 1, //number from 0 to 1
-      },
-      sunLuminance: {
-         // minimum light intensity at any time of active lights
+      sunreileigh: {
         type: 'number',
         default: 1, //number from 0 to 1
       },
-      sunTurbidity: {
-         // minimum light intensity at any time of active lights
+      sunluminance: {
+        type: 'number',
+        default: 1, //number from 0 to 1
+      },
+      sunturbidity: {
         type: 'number',
         default: 0.8, //number from 0 to 1
       },
       
-     sunRise: {
+     sunriseoffset: {
+        // experimental, not recommended, problems if anything has absolute positioning
         // where on the horizon the sun rises from
         // accomplishes this by rotating a-scene
-        // experimental, may cause issues
         type: 'number',
         default: 0, // number from 0 -> 360
       },
-      moonRise: {
+      moonriseoffset: {
+        // experimental, not recommended, problems if anything has absolute positioning
         // where on the horizon the moon rises from
         // this is accomplished adding rotation to a-scene
-        // experimental, may cause issues
         type: 'number',
         default: 45, // number from 0 -> 360
       },
@@ -205,21 +273,36 @@ AFRAME.registerComponent('super-sky', {
       
       this.sky = this.el;
       this.sky.setAttribute('id', 'star-sky');
-      this.sky.setAttribute('opacity', 0);
-      this.sky.setAttribute('radius', this.data.sunshaderDistance);
-      this.sky.setAttribute('theta-length', 110);
+      this.sky.setAttribute('material', 'opacity', 0); // may not be necessary
+      // debugger
+      this.sky.setAttribute('geometry', 'radius', this.data.sunshaderdistance);
+      this.sky.setAttribute('geometry', 'thetaLength', 110);
       this.sky.setAttribute('material', 'shader', 'sky');
       // this.el.appendChild(this.sky);
 
-      if (this.data.skipPercentInit) {
-        console.warn("not yet working")
-        this.data.startTime = Date.now() + ((this.data.skipPercentInit * (this.data.moonCycle ? 2 : 1)) * (this.data.cycleDuration * 1000 * 60));
-      }
-      else if (!this.data.startTime) {
-        this.data.startTime = Date.now();
+      if (!this.data.startTime) {
+        this.data.starttime = Date.now();
       }
       else if (this.data.debug) {
-        console.log('will use custom startTime:', this.data.startTime)
+        console.log('will use custom startTime:', this.data.starttime)
+      }
+      
+      if (this.data.startpercent) {
+        if (this.data.mooncycle && this.data.startpercent >= .5) {
+          this.secondHalf = true;
+          this.moon = true;
+        }
+        const cycleInMs = (this.data.cycleduration * 1000 * 60) * (this.data.mooncycle ? 2 : 1)
+        this.data.starttime = Date.now() - (this.data.startpercent * cycleInMs);
+        this.getOrbit()
+        this.setStarLoop()
+        this.getEighth()
+        this.getEighthStarLoop()
+        
+        if (this.data.debug) {
+          console.log("skipping first",`${this.data.startpercent*100}%`,(this.data.startpercent * cycleInMs)/1000,'seconds of cycleduration',cycleInMs/1000,Date.now(),'-',this.data.starttime)
+          console.log(this.orbit,this.currentEighth,this.currentEighthStarLoop)
+        }
       }
 
       if (this.data.throttle) {
@@ -239,7 +322,7 @@ AFRAME.registerComponent('super-sky', {
         // this.getSunSky().setAttribute('geometry','radius','1000');
       // }
       
-      if (this.data.showHemiLight) {
+      if (this.data.showhemilight) {
         this.hemilight = document.createElement('a-entity');
         this.hemilight.setAttribute('id','hemilight');
         this.hemilight.setAttribute('position', '0 50 0');
@@ -248,14 +331,14 @@ AFRAME.registerComponent('super-sky', {
           color: '#CEE4F0',
           intensity: 0.1
         });
-        this.hemilight.setAttribute('visible', true /*this.environmentData.lighting !== 'none'*/);
+        this.hemilight.setAttribute('visible', true);
 
-        if (this.hemilight) this.hemilight.setAttribute('light', {groundColor: this.data.groundColor});
+        if (this.hemilight) this.hemilight.setAttribute('light', {groundColor: this.data.groundcolor});
         this.el.appendChild(this.hemilight);
         this.activeLights.push(this.hemilight)
       }
       
-      if (this.data.showSurfaceLight) {
+      if (this.data.showsurfacelight) {
         if (this.data.debug) {
           this.sunlight = document.createElement('a-sphere');
           const nose = document.createElement('a-cone');
@@ -268,29 +351,28 @@ AFRAME.registerComponent('super-sky', {
           this.sunlight = document.createElement('a-entity');
         }
 
-        // this.sunlight.classList.add('environment');
-        this.sunlight.setAttribute('id','sunlight-directional');
+        this.sunlight.setAttribute('id','sunlight-noshadow');
         this.sunlight.setAttribute('light', {
           type:'directional', 
           intensity: 0.1,
           shadowCameraVisible: this.data.debug,
-          castShadow: false /*this.environmentData.shadow*/,
-          shadowCameraLeft: -this.data.shadowSize,
-          shadowCameraBottom: -this.data.shadowSize,
-          shadowCameraRight: this.data.shadowSize,
-          shadowCameraTop: this.data.shadowSize
+          castShadow: false,
+          shadowCameraLeft: -this.data.shadowsize,
+          shadowCameraBottom: -this.data.shadowsize,
+          shadowCameraRight: this.data.shadowsize,
+          shadowCameraTop: this.data.shadowsize
         });
-        this.sunlight.setAttribute('visible', true /*this.environmentData.lighting !== 'none'*/);
+        this.sunlight.setAttribute('visible', true);
         this.el.appendChild(this.sunlight);
         this.activeLights.push(this.sunlight)
       }
-      
-      if (this.data.showShadowLight) {
+
+      if (this.data.showshadowlight) {
         this.sunbeam = document.createElement(this.data.debug ? 'a-sphere' : 'a-entity')
         this.sunbeam.setAttribute('light', {
           type: 'directional',
           intensity: 0.1, // dynamically set during the day
-          groundColor: this.data.groundColor,
+          groundColor: this.data.groundcolor,
           
           shadowCameraVisible: this.data.debug,
           castShadow: true,
@@ -299,13 +381,18 @@ AFRAME.registerComponent('super-sky', {
           shadowMapHeight: 1024,
           shadowRadius: 1,
 
-          shadowCameraLeft: -this.data.shadowSize,
-          shadowCameraBottom: -this.data.shadowSize,
-          shadowCameraRight: this.data.shadowSize,
-          shadowCameraTop: this.data.shadowSize,
-          target: this.data.sunbeamTarget || "[camera]", // '#the-cam', //
+          shadowCameraLeft: -this.data.shadowsize,
+          shadowCameraBottom: -this.data.shadowsize,
+          shadowCameraRight: this.data.shadowsize,
+          shadowCameraTop: this.data.shadowsize,
+
+          shadowCameraFar: this.data.sunbeamdistance + this.data.shadowsize, // maybe + 50 is better?
+          shadowCameraNear: this.data.sunbeamdistance - 100, // could probably safelu lower this substantially...
+
+          target: this.data.sunbeamtarget || "[camera]",
         });
         this.sunbeam.setAttribute('id', 'sunbeam')
+        // this.sunbeam.setAttribute('scale', '1 1 1')
         this.el.appendChild(this.sunbeam);
         this.activeLights.push(this.sunbeam)
       }
@@ -319,15 +406,15 @@ AFRAME.registerComponent('super-sky', {
 
       // temp
       // document.getElementById('sun').setAttribute('geometry', 'radius', 500);
-      this.cachedSkyRadius = this.data.skyRadius // document.getElementById('sun').getAttribute('geometry').radius
+      this.cachedSkyRadius = this.data.skyradius // document.getElementById('sun').getAttribute('geometry').radius
     },
 
     activeLights: [],
   
     update(oldData) {
-      if (this.data.groundColor != oldData.groundColor) {
+      if (this.data.groundcolor != oldData.groundcolor) {
         this.activeLights.forEach(el => {
-          el.setAttribute('light', {'groundColor': this.data.groundColor});
+          el.setAttribute('light', {'groundColor': this.data.groundcolor});
         });
       }
     },
@@ -341,7 +428,7 @@ AFRAME.registerComponent('super-sky', {
       this.stars = document.createElement('a-entity');
       this.stars.id= 'stars';
       
-      if (this.data.showStars && this.version === 0) {
+      if (this.data.showstars && this.version === 0) {
         if (this.data.debug) console.log("appending old style star system")
         // this.starsOld = document.createElement('a-entity');
         // this.starsOld.setAttribute('id', 'stars');
@@ -352,20 +439,20 @@ AFRAME.registerComponent('super-sky', {
         // this.getSunSky().setAttribute('geometry','radius','1000');
 
         this.stars.setAttribute('star-system',{
-          count: this.data.starCount, 
-          radius: this.data.starfieldDistance,
+          count: this.data.starcount, 
+          radius: this.data.starfielddistance,
           size: .25,
-          depth: this.data.sunshaderDistance-this.data.starfieldDistance,
+          depth: this.data.sunshaderdistance-this.data.starfielddistance,
         });
         // this.el.appendChild(this.starsOld);
       }
       else {
         // initializes the BufferGeometry for the stars in >= AF 1.2.0 
         // code here is more or less pulled from aframe-environment-component
-        var numStars = this.data.starCount;
+        var numStars = this.data.starcount;
         var geometry = new THREE.BufferGeometry();
         var positions = new Float32Array( numStars * 3 );
-        var radius = this.data.starfieldDistance;
+        var radius = this.data.starfielddistance;
         var v = new THREE.Vector3();
         for (var i = 0; i < positions.length; i += 3) {
           v.set(this.random(i + 23) - 0.5, this.random(i + 24), this.random(i + 25) - 0.5);
@@ -377,7 +464,7 @@ AFRAME.registerComponent('super-sky', {
         }
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setDrawRange(0, 0); // don't draw any yet
-        var material = new THREE.PointsMaterial({size: 0.01, color: 0xCCCCCC, /*fog: false*/});
+        var material = new THREE.PointsMaterial({size: 0.01, color: 0xCCCCCC, fog: false});
         this.stars.setObject3D('mesh', new THREE.Points(geometry, material));
       }
       this.el.appendChild(this.stars);
@@ -404,11 +491,13 @@ AFRAME.registerComponent('super-sky', {
     fogRangeMax: 1000,
     getOrbit() {
       // converts time passed into a fraction of 360, so 0,1,2...359,360,0,1...etc.
-      this.msSinceStart = Date.now() - this.data.startTime;
+      this.msSinceStart = Date.now() - this.data.starttime;
       this.minSinceStart = this.msSinceStart / 1000 / 60;
-      this.minIntoCycle = this.minSinceStart % this.data.cycleDuration;
-      this.fractionOfCurrentCycleCycle = this.minIntoCycle * ( 1 / this.data.cycleDuration );
-      return 360 * this.fractionOfCurrentCycleCycle;
+      this.minIntoCycle = this.minSinceStart % this.data.cycleduration;
+      this.fractionOfCurrentCycle = this.minIntoCycle * ( 1 / this.data.cycleduration );
+      // if (this.fractionOfCurrentCycle < 0) this.fractionOfCurrentCycle = -this.fractionOfCurrentCycle // might be wrong, just a test
+      this.orbit = 360 * this.fractionOfCurrentCycle;
+      return this.orbit;
     },
 
     moon: false,
@@ -424,6 +513,7 @@ AFRAME.registerComponent('super-sky', {
       // that part is a bit of a hack and should be adjusted, so: "todo"
 
       // 90 === 360/4
+      
       this.quarterCount = Math.floor( this.starLoop / 90 );
       this.lastEighthStarLoop = this.currentEighthStarLoop;
       this.currentEighthStarLoop = {
@@ -472,8 +562,9 @@ AFRAME.registerComponent('super-sky', {
       // 90 === 360/4
       this.quarterCount = Math.floor( this.orbit / 90 );
       this.lastEighth = this.currentEighth;
-      if ( (this.quarterCount === 0 && this.lastEighth.which === 3)
-      || this.quarterCount === 0 && this.lastEighth.which === 7
+      if (this.data.mooncycle &&
+        (this.quarterCount === 0 && this.lastEighth.which === 3)
+        || this.quarterCount === 0 && this.lastEighth.which === 7
       ) {
         this.secondHalf = !this.secondHalf
       }
@@ -483,31 +574,35 @@ AFRAME.registerComponent('super-sky', {
       }
 
       if (this.data.debug && this.lastEighth.which !== this.currentEighth.which) {
-        // console.log('new eighth', {
-        //   eighth: this.currentEighth.which, 
-        //   moon: this.moon, 
-        //   starlight: this.starlight, 
-        //   sunOrMoonUp: this.sunOrMoonUp(), 
-        //   fog: this.fogValue, 
-        //   intensity: this.lights.lightProps.intensity, 
-        //   multiplier: this.lights.intensityMultiplier
-        // })
-
-        
-        // document.querySelector('#log').setAttribute('value', "fog: "+this.fogValue)
-        // document.querySelector('#log').setAttribute('value', 's: ' + this.currentEighthStarLoop.which + "/8; e: " + this.currentEighth.which + "/8")
+        console.log('new eighth', {
+          eighth: this.currentEighth.which, 
+          moon: this.moon, 
+          starlight: this.starlight, 
+          fog: this.fogValue, 
+          intensity: this.lights.intensity, 
+          multiplier: this.lights.intensityMultiplier
+        })
       }
     },
     currentEighth: { // dynamically set
-      which: 2,
+      which: 0,
       percent: 0.001,
     },
   
+    setStarLoop() {
+      // this was early code; would be nice to refactor this to this.inRange()
+      if (this.orbit > this.data.starloopstart) {
+        this.starLoop = this.orbit - this.data.starloopstart;
+      } else {
+        this.starLoop = this.orbit + (360 - this.data.starloopstart);
+      }
+    },
+  
     handleMoonCycle(orbit) {
-      if (orbit < this.data.starLoopStart && this.moonSunSwitchFlag) {
+      if (orbit < this.data.starloopstart && this.moonSunSwitchFlag) {
         this.moonSunSwitchFlag = false;
       }
-      if (orbit > this.data.starLoopStart && !this.moonSunSwitchFlag) {
+      if (orbit > this.data.starloopstart && !this.moonSunSwitchFlag) {
         if (this.data.debug) console.log("switching sun/moon", orbit, 'moon:', this.moon)
 
         this.moon = !this.moon;
@@ -515,9 +610,9 @@ AFRAME.registerComponent('super-sky', {
         this.moonSunSwitchFlag = true;
         if (this.moon) {
           if (this.data.debug) console.log('switch to moon cycle, would rotate scene for moonrise')
-          // this.el.sceneEl.setAttribute('rotation', {y:this.data.moonRise})
+          // this.el.sceneEl.setAttribute('rotation', {y:this.data.moonriseOffset})
           
-          if (this.data.showStars) {
+          if (this.data.showstars) {
             // show stars right after sunset
             this.setStars();
             
@@ -525,16 +620,12 @@ AFRAME.registerComponent('super-sky', {
           }
         } else {
           if (this.data.debug) console.log('switch to sun cycle, would rotate scene for sunrise; feature removed')
-          // this.el.sceneEl.setAttribute('rotation', {y:this.data.sunRise})
+          // this.el.sceneEl.setAttribute('rotation', {y:this.data.sunriseOffset})
         }
       }
 
       // track star loop separately to have stars rise and fog come in offset just after sunset
-      if (orbit > this.data.starLoopStart) {
-        this.starLoop = orbit - this.data.starLoopStart;
-      } else {
-        this.starLoop = orbit + (360 - this.data.starLoopStart);
-      }
+      this.setStarLoop();
 
       this.starCycle = this.starLoop * ( 1 / 180 ); // 0 -> 2 scale for the 0 -> 360 rotation; we do until 2 so that we can make it negative after 1.
       this.starCycle = this.starCycle > 1 ? 2 - this.starCycle : this.starCycle;
@@ -553,7 +644,7 @@ AFRAME.registerComponent('super-sky', {
         // sunset -> starlight
         // less fog (so, higher fog value) as percent of this.currentEighth goes up
         this.fogValue = this.currentEighthStarLoop.percent * this.fogRangeMax
-        if (this.data.showStars && !this.moon && this.starlight) {
+        if (this.data.showstars && !this.moon && this.starlight) {
             this.setStars(0);
         }
       }
@@ -568,14 +659,16 @@ AFRAME.registerComponent('super-sky', {
         this.fogValue = this.fogRangeMax
       }
       // if (this.data.debug) console.log('fogValue', this.fogValue,  this.currentEighthStarLoop.percent, this.fogRangeMax)
-      if (this.fogValue < this.data.fogMin) this.fogValue = this.data.fogMin;
+      if (this.fogValue < this.data.fogmin) this.fogValue = this.data.fogmin;
       
-      this.el.sceneEl.setAttribute('fog', 'far', this.fogValue);
+      if (!this.data.disablefog) {
+        this.el.sceneEl.setAttribute('fog', 'far', this.fogValue);
+      }
     },
     starlight: false, // dynamically set, indicates if stars are an active light source, which they are for 3/4s of the day/night cycle
     howManyStars() {
-      // can be used to cause stars to drop out one by one, fog will obscure it
-      return (1 - Math.max(0, ( this.sunPos.y + 0.08) * 8)) * this.data.starCount; 
+      // can be used to cause stars to drop out one by one, fog creates more attractive effect, though.
+      return (1 - Math.max(0, ( this.sunPos.y + 0.08) * 8)) * this.data.starcount; 
     },
 
     sunPosition: {x:0,y:0,z:-1}, // dynamically set
@@ -586,7 +679,7 @@ AFRAME.registerComponent('super-sky', {
 
     tick() {
       this.orbit = this.getOrbit();
-      if (this.data.moonCycle) {
+      if (this.data.mooncycle) {
         this.handleMoonCycle(this.orbit);
       }
 
@@ -603,7 +696,7 @@ AFRAME.registerComponent('super-sky', {
 
       this.sky.setAttribute('material', this.sunSkyMaterial);      
     },
-    sunSkyMaterial: {
+    sunSkyMaterial: { // dynamically set
       reileigh: 1,
       luminance: 1,
       turbidity: .8,
@@ -617,18 +710,18 @@ AFRAME.registerComponent('super-sky', {
         // console.log("moon to sun", this.currentEighthStarLoop.which)
         // label = this.currentEighthStarLoop.which+' moon to sun; ';
         // from moon to sun
-        this.sunSkyMaterial.reileigh = this.data.moonReileigh + (this.currentEighthStarLoop.percent * (this.data.sunReileigh - this.data.moonReileigh));
-        this.sunSkyMaterial.luminance = this.data.moonLuminance + (this.currentEighthStarLoop.percent * (this.data.sunLuminance - this.data.moonLuminance));
-        this.sunSkyMaterial.turbidity = this.data.moonTurbidity + (this.currentEighthStarLoop.percent * (this.data.sunTurbidity - this.data.moonTurbidity));
+        this.sunSkyMaterial.reileigh = this.data.moonreileigh + (this.currentEighthStarLoop.percent * (this.data.sunreileigh - this.data.moonreileigh));
+        this.sunSkyMaterial.luminance = this.data.moonluminance + (this.currentEighthStarLoop.percent * (this.data.sunluminance - this.data.moonluminance));
+        this.sunSkyMaterial.turbidity = this.data.moonturbidity + (this.currentEighthStarLoop.percent * (this.data.sunturbidity - this.data.moonturbidity));
       }
       else if (this.currentEighthStarLoop.which === 2 || this.currentEighthStarLoop.which === 3) {
         // 2 3
         // console.log("sun", this.currentEighthStarLoop.which)
         // label = this.currentEighthStarLoop.which+' sun; ';
         // straight sun
-        this.sunSkyMaterial.reileigh = this.data.sunReileigh
-        this.sunSkyMaterial.luminance = this.data.sunLuminance
-        this.sunSkyMaterial.turbidity = this.data.sunTurbidity
+        this.sunSkyMaterial.reileigh = this.data.sunreileigh
+        this.sunSkyMaterial.luminance = this.data.sunluminance
+        this.sunSkyMaterial.turbidity = this.data.sunturbidity
       }
       else if (this.currentEighthStarLoop.which === 4) {
         // 4
@@ -636,9 +729,9 @@ AFRAME.registerComponent('super-sky', {
         // sun to moon
         // label = this.currentEighthStarLoop.which+' sun to moon; ';
         // 1 -(0.24266666666666703 * (1 - 0.1))
-        this.sunSkyMaterial.reileigh = (this.data.sunReileigh - (this.currentEighthStarLoop.percent * (this.data.sunReileigh - this.data.moonReileigh)) );
-        this.sunSkyMaterial.luminance = (this.data.sunLuminance - (this.currentEighthStarLoop.percent * (this.data.sunLuminance - this.data.moonLuminance)) );
-        this.sunSkyMaterial.turbidity = (this.data.sunTurbidity - (this.currentEighthStarLoop.percent * (this.data.sunTurbidity - this.data.moonTurbidity)) );
+        this.sunSkyMaterial.reileigh = (this.data.sunreileigh - (this.currentEighthStarLoop.percent * (this.data.sunreileigh - this.data.moonreileigh)) );
+        this.sunSkyMaterial.luminance = (this.data.sunluminance - (this.currentEighthStarLoop.percent * (this.data.sunluminance - this.data.moonluminance)) );
+        this.sunSkyMaterial.turbidity = (this.data.sunturbidity - (this.currentEighthStarLoop.percent * (this.data.sunturbidity - this.data.moonturbidity)) );
         // debugger;
       }
       else if (this.currentEighthStarLoop.which) {
@@ -646,9 +739,9 @@ AFRAME.registerComponent('super-sky', {
         // console.log('moon')
         // straight moon
         // label = this.currentEighthStarLoop.which+' moon; ';
-        this.sunSkyMaterial.reileigh = this.data.moonReileigh
-        this.sunSkyMaterial.luminance = this.data.moonLuminance
-        this.sunSkyMaterial.turbidity = this.data.moonTurbidity
+        this.sunSkyMaterial.reileigh = this.data.moonreileigh
+        this.sunSkyMaterial.luminance = this.data.moonluminance
+        this.sunSkyMaterial.turbidity = this.data.moonturbidity
       }
       
       // document.querySelector('#log2').setAttribute('value', label+"r: " +`${this.sunSkyMaterial.reileigh}`+"; l:" +this.sunSkyMaterial.luminance+"; t:"+this.sunSkyMaterial.turbidity)
@@ -656,16 +749,6 @@ AFRAME.registerComponent('super-sky', {
       // console.log(this.currentEighthStarLoop.which, this.sunSkyMaterial.reileigh, `${this.data.sunReileigh} -(${this.currentEighthStarLoop.percent} * (${this.data.sunReileigh} - ${this.data.moonReileigh}))`)
 
       this.sunSkyMaterial.sunPosition = this.sunPosition // this.version === 0 ? this.sunPosition : this.sunPos
-    },
-
-
-    lights: { // set dynamically
-      posSurface: {
-        z: -1,
-      },
-      posBeam: {},
-      posHemi: {},
-      lightProps: {}, // all the same for now...
     },
 
     glc: {
@@ -763,55 +846,68 @@ AFRAME.registerComponent('super-sky', {
       }
     },
 
+    lights: { // set dynamically
+      posSurface: {
+        z: -1,
+      },
+      posBeam: {},
+      posHemi: {},
+      
+      lightHemi: {},
+      lightBeam: {},
+    },
     lightSourcesTick() {
-        // this.offset = this.moon ? this.data.moonRise : this.data.sunRise;
+        // this.offset = this.moon ? this.data.moonriseOffset : this.data.sunriseOffset;
         // this.el.setAttribute('rotation', 'y', -this.offset)
 
         // update light colors and intensities
         this.sunPos = new THREE.Vector3(this.sunPosition.x, this.sunPosition.y, this.sunPosition.z)
         this.sunPos.normalize();
         
-        if (!this.data.disableAllLighting) {
+        if (!this.data.disablealllighting) {
           this.lights.intensityMultiplier = 
             !this.moon && this.sunOrMoonUp() ? 
-              0.5 : // daylight
+              this.data.sunintensity : // daylight
             this.starlight && !this.sunOrMoonUp() ?
               0.005 : // stars pre-and-post moon
             this.moon && this.sunOrMoonUp() ?
-              0.05 : // moon is up
+              this.data.moonintensity : // moon is up
               1 // shouldn't happen, flash to make reasoning error obvious
-          this.lights.lightProps.intensity = this.starlight && !this.sunOrMoonUp() ? this.data.starlightIntensity : (0.1 + this.sunPos.y * this.lights.intensityMultiplier);
-          this.lights.lightProps.intensity = this.lights.lightProps.intensity < this.data.starlightIntensity ? this.data.starlightIntensity : this.lights.lightProps.intensity;
+          if (this.data.debug && this.lights.intensityMultiplier===1) console.warn("light intensity calc problem")
+          this.lights.intensity = this.starlight && !this.sunOrMoonUp() ? this.data.starlightintensity : (0.1 + this.sunPos.y * this.lights.intensityMultiplier);
+          // this.lights.lightProps.intensity = this.lights.lightProps.intensity < this.data.starlightintensity ? this.data.starlightintensity : this.lights.lightProps.intensity;
           // document.getElementById('lamp').setAttribute('light',this.lights.lightProps);
           // console.log(this.lights.lightProps.intensity, this.lights.intensityMultiplier)
           
 
-          this.lights.lightProps.color = this.getLightColor(1);
+          this.lights.lightHemi.color = this.getLightColor(1);
+          this.lights.lightBeam.color = this.lights.lightHemi.color
 
           // document.querySelector('#log2').setAttribute('value', this.lights.intensityMultiplier + " m=>i " + this.cleanNumber(this.lights.lightProps.intensity) + "  |s: " +  this.cleanNumber(this.sunPosition.y) + " |c " + this.lights.lightProps.color)
-          delete this.lights.lightProps.castShadow; // delete because hemilight complains
         }
         // adding to garbage collection overhead--make all objects here into local re-used objects
-        if (this.data.showSurfaceLight) {
+        if (this.data.showsurfacelight) {
           this.lights.posSurface.x = -this.sunPosition.x;
           this.lights.posSurface.y = this.sunPosition.y
           this.sunlight.setAttribute('position', this.lights.posSurface); // new experimental version 
-          this.sunlight.setAttribute('light', this.lights.lightProps);
+          this.sunlight.setAttribute('light', this.lights.lightHemi);
         }
 
-        if (this.data.showHemiLight || this.data.showShadowLight) {
+        if (this.data.showhemilight || this.data.showshadowlight) {
           this.sunshaderToSunbeam();
         }
 
-        if (this.data.showHemiLight) {
-          this.hemilight.setAttribute('light', this.lights.lightProps);
+        if (this.data.showhemilight) {
+          this.lights.lightHemi.intensity = this.lights.intensity < this.data.starlightintensity ? this.data.starlightintensity : this.lights.intensity;
+          // delete this.lights.lightProps.castShadow; // delete because hemilight complains
+          this.hemilight.setAttribute('light', this.lights.lightHemi);
         }
 
-        if (this.data.showShadowLight) {
+        if (this.data.showshadowlight) {
           this.sunbeam.setAttribute('position', this.toD3);
-          this.lights.lightProps.castShadow = this.sunOrMoonUp(); // should actually specify eighths where sun/moon are up.
-          this.lights.lightProps.intensity = this.sunOrMoonUp() ? this.lights.lightProps.intensity : 0
-          this.sunbeam.setAttribute('light', this.lights.lightProps);
+          this.lights.lightBeam.castShadow = this.sunOrMoonUp(); // should actually specify eighths where sun/moon are up.
+          this.lights.lightBeam.intensity = this.sunOrMoonUp() ? this.lights.intensity : 0
+          this.sunbeam.setAttribute('light', this.lights.lightBeam);
         }
     },
     
@@ -843,9 +939,9 @@ AFRAME.registerComponent('super-sky', {
       // using the same 0-360 orbit input, get x/y/z 3d vector to (mostly) match sun-sky's sun texture position 
       // note that the shader actually allows a very limited range for the sun/moon, and will ignore inputs outside of its range
       // this function won't, though, and trying to force the moon/sun beyond range will just cause the light source to go out of sync.
-      this.toD3.x = ( (this.data.sunbeamDistance) * Math.sin(this.theta) * Math.cos(this.phi()) );
-      this.toD3.y = ( this.data.sunbeamDistance) * Math.sin(this.theta) * Math.sin(this.phi() );
-      this.toD3.z = -( (this.data.sunbeamDistance) * Math.cos(this.theta) );
+      this.toD3.x = ( (this.data.sunbeamdistance) * Math.sin(this.theta) * Math.cos(this.phi()) );
+      this.toD3.y = ( this.data.sunbeamdistance) * Math.sin(this.theta) * Math.sin(this.phi() );
+      this.toD3.z = -( (this.data.sunbeamdistance) * Math.cos(this.theta) );
     },
   
     moveSunrise(degrees) {
