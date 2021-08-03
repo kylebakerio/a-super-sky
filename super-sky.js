@@ -55,6 +55,7 @@ AFRAME.registerPrimitive('a-super-sky', {
 });
 
 
+
 AFRAME.registerComponent('super-sky', {
    schema: {
       static:{
@@ -288,7 +289,7 @@ AFRAME.registerComponent('super-sky', {
       }
       
       if (this.data.startpercent) {
-        if (this.data.mooncycle && this.data.startpercent >= .5) {
+        if (this.data.mooncycle && (this.data.startpercent % 1) >= .5) {
           this.secondHalf = true;
           this.moon = true;
         }
