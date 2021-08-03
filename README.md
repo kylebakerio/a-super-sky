@@ -83,15 +83,21 @@ Add a light source if your scene can handle it, or adjust `starlightintensity` t
 Look into [shadow bias](https://aframe.io/docs/1.2.0/components/light.html#configuring_shadows_shadowbias), and if you changed the default values for the `sunbeamdistance`, that's probably the cause.
 #### How do I turn off shadows?
 `showshadowlight='false'`
-#### How do I keep shadows but make them higher performance?
-make `shadowsize` smaller (default is 15), make `cycleduration` as high as you can make sense of, and then make `throttle` (default 10ms) as high as you can before the updates look choppy. Beyond that, change `shadowMapHeight` and `shadowMapWidth` of the `sunbeam` to a lower value (default is 1024; try 512, or even further down to 256).
+#### How do I keep shadows but reduce their performance cost?
+- make `shadowsize` smaller (default is 15)
+- make `cycleduration` as high as you are willing to, and then make `throttle` (default 10ms) as high as you can before the updates look choppy.
+- change `shadowMapHeight` and `shadowMapWidth` of the `sunbeam` to a lower value (default is 1024; try 512, or even further down to 256).
+- remove other light sources, and/or reduce the number of items that `cast` and `receive` `shadow`.
 #### My question isn't here.
 You can file an issue, I'd be interested to hear. But honestly, you should probably see [the docs](https://aframe.io/docs/1.2.0/components/light.html#configuring-shadows) to dig deeper into this. I'm not an expert.
 ## other
 #### How can I make the fog not apply to X?
-[As per the docs](https://aframe.io/docs/1.2.0/components/fog.html), add `material="fog:false;"`.
+[As per the docs](https://aframe.io/docs/1.2.0/components/fog.html), add `material="fog:false;"` to X.
 
 # TODO:
+#### enable update functionality
+- no `update()`
+
 #### spinny stuff
 - better method for changing moon rise/set position than a-scene rotation? finishing implementing rotation option
 - slightly rotate stars over the course of a night
