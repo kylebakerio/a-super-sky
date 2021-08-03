@@ -22,7 +22,8 @@ AFRAME.registerPrimitive('a-super-sky', {
   },
   mappings: {
     static: 'super-sky.static',    
-    cycleduration: 'super-sky.cycleduration',
+    targetfpd: 'super-sky.targetfpd',    
+    orbitduration: 'super-sky.orbitduration',
     throttle: 'super-sky.throttle',
     starttime: 'super-sky.starttime',
     startpercent: 'super-sky.startpercent',
@@ -61,25 +62,33 @@ AFRAME.registerPrimitive('a-super-sky', {
 
 AFRAME.registerComponent('super-sky', {
    schema: {
-      static:{
-        // not yet implemented
-        type: 'boolean',
-        default: false,
-      },
-      cycleduration: {
+      orbitduration: {
         // time for one sun cycle. if moon cycle is enabled, then a full day will be twice this length.
+        // set to `infinite`
         type: 'number',
         default: 1, // in minutes
       },
-      throttle: {
+      throttle: { // overrides targetfpd if set
+        // -1 means that throttle will be auto-set according to targetfpd
+        
         // how much to throttle, if desired
         // higher values make sky computed less often, which will make sky 'choppy'
         // to tune for performance:
         // make cycle duration as long as possible first,
         // then increase throttle as high as you can before it starts looking jerky
         type: 'number',
-        default: 10, // min ms to wait before recalculating sky change since last calculation; e.g., 10 = 100fps cap
-      },      
+        default: -1, // min ms to wait before recalculating sky change since last calculation; e.g., 10 = 100fps cap
+      },
+      targetfpd: { // fpd = frames per degree
+        // -1 means that an auto-set value will be used
+
+        // if left at 0, will use an auto-calculated sane value relative to orbitduration
+        // set to -1 to make scene static
+        // fpd of '1' would mean the sun/moon will 'click' into each 1/360 position of its rotation, '2' would mean per .5 degree, and so on
+        // sane value is usually around 10 (per 10th of a degree, attempt refresh)
+        type: 'number',
+        default: -1,
+      },
       starttime: {
         // this will be auto-set to date.now(), but you can specify a start time to sync the sky to other
         // users or to a consistent in-world epoch time.
@@ -128,7 +137,7 @@ AFRAME.registerComponent('super-sky', {
         // used as minimum light intensity at any time of active lights, which is,
         // how bright ambient lighting is when only stars are out
         type: 'number',
-        default: 0.1, //number from 0 to 1
+        default: 0.2, //number from 0 to 1
       },
       moonintensity: {
         // how bright the actual light from the moon is
@@ -264,8 +273,12 @@ AFRAME.registerComponent('super-sky', {
         default: false,
       },
     },
+
     init: function () {
-      this.el.setAttribute('id', 'super-sky')
+      if (!this.data.debug) this.trackPerformance = () => {};
+      
+      this.el.setAttribute('class', 'super-sky')
+      
       if (AFRAME.version === "1.0.4" || AFRAME.version === "1.1.0" || AFRAME.version[0] === "0") {
         if (this.data.debug) console.warn("detected pre 1.2.0, make sure to include star library (see readme)");
         this.version = 0;
@@ -274,7 +287,7 @@ AFRAME.registerComponent('super-sky', {
         if (this.data.debug) console.log("detected AFRAME >=1.2.0, highest tested is 1.2.0");
         this.version = 1;
       }
-      
+      this.setThrottle()
       this.sky = this.el;
       this.sky.setAttribute('id', 'star-sky');
       this.sky.setAttribute('material', 'opacity', 0); // may not be necessary
@@ -296,7 +309,7 @@ AFRAME.registerComponent('super-sky', {
           this.secondHalf = true;
           this.moon = true;
         }
-        const cycleInMs = (this.data.cycleduration * 1000 * 60) * (this.data.mooncycle ? 2 : 1)
+        const cycleInMs = (this.data.orbitduration * 1000 * 60) * (this.data.mooncycle ? 2 : 1)
         this.data.starttime = Date.now() - (this.data.startpercent * cycleInMs);
         this.getOrbit()
         this.setStarLoop()
@@ -304,14 +317,12 @@ AFRAME.registerComponent('super-sky', {
         this.getEighthStarLoop()
         
         if (this.data.debug) {
-          console.log("skipping first",`${this.data.startpercent*100}%`,(this.data.startpercent * cycleInMs)/1000,'seconds of cycleduration',cycleInMs/1000,Date.now(),'-',this.data.starttime)
+          console.log("skipping first",`${this.data.startpercent*100}%`,(this.data.startpercent * cycleInMs)/1000,'seconds of orbitduration',cycleInMs/1000,Date.now(),'-',this.data.starttime)
           console.log(this.orbit,this.currentEighth,this.currentEighthStarLoop)
         }
       }
 
-      if (this.data.throttle) {
-        this.tick = AFRAME.utils.throttleTick(this.tick, this.data.throttle, this);
-      }
+      this.tick = AFRAME.utils.throttleTick(this.tick, this.throttle, this);
       
 
       // this.sky = this.starSky // document.createElement('a-sky');
@@ -413,6 +424,33 @@ AFRAME.registerComponent('super-sky', {
       this.cachedSkyRadius = this.data.skyradius // document.getElementById('sun').getAttribute('geometry').radius
     },
 
+    throttle: 0, // dynamically set
+    setThrottle() {
+      if (this.data.throttle !== -1) {
+        if (this.data.debug) console.warn("custom throttle set, will ignore targetfpd")
+        this.throttle = this.data.throttle;
+        return
+      }
+      else if (this.data.targetfpd === 0) {
+        if (this.data.debug) console.warn("static scene")
+        this.throttle = Infinity;
+        return
+      }
+      this.msPerDegree = (this.data.orbitduration/360)*1000*60;
+      
+      if (this.data.targetfpd === -1) {
+        if (this.data.debug) console.log("no given targetfpd, will fall back to 40fps cap default");
+        this.data.targetfpd = this.msPerDegree/25 // we set this here only to generate console suggestions about how it might be improved by the user, but we use the auto-set throttle value
+      }
+      
+      this.throttle = this.msPerDegree / this.data.targetfpd;
+      this.fps = 1000/this.throttle;
+      
+      if (this.data.debug) console.log(this.cleanNumber(this.msPerDegree),'ms per degree at',this.cleanNumber(this.data.targetfpd),',fpd; throttle:',this.cleanNumber(this.throttle),', fps:',this.cleanNumber(this.fps));
+      if (this.throttle < 10 || this.fps > 60) console.warn("targetfpd very high; consider setting below", this.cleanNumber(this.data.targetfpd / (15 / this.throttle)),"to optimize performance");
+      else if (this.throttle > 50 || this.fps < 20 || this.data.targetfpd < .5) console.warn("targetfpd may be low; if needed, consider increasing cycleduration, or setting tarfpd above", this.cleanNumber(this.data.targetfpd / (50 / this.throttle))+0.01,"to improve animation smoothness");
+    },
+  
     activeLights: [],
   
     update(oldData) {
@@ -498,8 +536,8 @@ AFRAME.registerComponent('super-sky', {
       // converts time passed into a fraction of 360, so 0,1,2...359,360,0,1...etc.
       this.msSinceStart = Date.now() - this.data.starttime;
       this.minSinceStart = this.msSinceStart / 1000 / 60;
-      this.minIntoCycle = this.minSinceStart % this.data.cycleduration;
-      this.fractionOfCurrentCycle = this.minIntoCycle * ( 1 / this.data.cycleduration );
+      this.minIntoCycle = this.minSinceStart % this.data.orbitduration;
+      this.fractionOfCurrentCycle = this.minIntoCycle * ( 1 / this.data.orbitduration );
       // if (this.fractionOfCurrentCycle < 0) this.fractionOfCurrentCycle = -this.fractionOfCurrentCycle // might be wrong, just a test
       this.orbit = 360 * this.fractionOfCurrentCycle;
       return this.orbit;
@@ -681,8 +719,28 @@ AFRAME.registerComponent('super-sky', {
     theta: Math.PI * (-.25), // putting it at .5 changes to a sun that goes straight overhead, but shader only supports movement in its very small range 
     phi() {return (2 * Math.PI * ((this.orbit / 360) - 0.5))}, // percent of circumference
     // I think this 0.5 is the source of the offset by 2/8ths. it forces it to start at sunrise! // -.25 correspondes to noon, -0 corresponds to sunset
-
+    
+    lastTick: Date.now(),
+    slowTickBuildup: 0,
+    tolerance: -10, // normal ms delay
+    trackPerformance() {
+      // NOTE, DOES NOT RUN UNLESS DEBUG ENABLED
+      // console.log(this.throttle - (Date.now()-this.lastTick),this.tolerance)
+      if (this.throttle - (Date.now()-this.lastTick) < this.tolerance) {
+        // if (this.data.debug) console.warn("slow tick")
+        this.slowTickBuildup++
+      } else if (this.slowTickBuildup > 0) {
+        this.slowTickBuildup--
+      }
+      if (this.slowTickBuildup > 5) {
+        if (this.data.debug) console.error("demands too high, should increase throttle and reduce cycleduration", this.slowTickBuildup)
+      }
+      // console.log("tslt",)
+      this.lastTick = Date.now();
+    },
     tick() {
+      this.trackPerformance()
+
       this.orbit = this.getOrbit();
       if (this.data.mooncycle) {
         this.handleMoonCycle(this.orbit);
@@ -790,8 +848,10 @@ AFRAME.registerComponent('super-sky', {
           this.glc.a = ((this.glc.sunHeight) - this.glc.ratioA) / (this.glc.ratioB - this.glc.ratioA); // how far are we on the path from color 1 to color 2
           this.glc.a = this.moon && this.glc.sunHeight > 0 ? (1 - (this.glc.a-1)) : this.glc.a; // handle negative sun range values
           if (this.inRange(this.glc.starBrightRange)) {
-            // lock at certain shade of white while the stars are up
+            // lock at peak white while the stars are up
             if (this.glc.a > .29) this.glc.a = .29
+            // this hard coded value was the observed peak at 'midnight' of a given sun cycle.
+            // the range is from moon-midnight to sun-midnight, preventing drops towards black pre-moonrise and post-moon-noon
           }
           // console.log(this.inRange(this.glc.starBrightRange))
           // if (this.glc.sunHeight < 0) this.glc.a = .99;
@@ -861,6 +921,15 @@ AFRAME.registerComponent('super-sky', {
       lightHemi: {},
       lightBeam: {},
     },
+  
+    ranges: {
+      starBright: {start:{which:3},end:{which:6}}, // sun-midnight to moon-midnight; when the stars shine
+      extendedStarRange: {start:{which:2},end:{which:7}}, // includes the wax on and wane out of star range just after sunset until just before sunrise
+      
+      daylight: {start:{which:0},end:{which:1}}, // when sun is shining
+      moonlight: {start:{which:4},end:{which:5}}, // when sun is shining
+    },
+  
     lightSourcesTick() {
         // this.offset = this.moon ? this.data.moonriseOffset : this.data.sunriseOffset;
         // this.el.setAttribute('rotation', 'y', -this.offset)
@@ -871,15 +940,18 @@ AFRAME.registerComponent('super-sky', {
         
         if (!this.data.disablealllighting) {
           this.lights.intensityMultiplier = 
-            !this.moon && this.sunOrMoonUp() ? 
+            // !this.moon && this.sunOrMoonUp() ? 
+            this.inRange(this.ranges.daylight) ?
               this.data.sunintensity : // daylight
-            this.starlight && !this.sunOrMoonUp() ?
-              0.005 : // stars pre-and-post moon
-            this.moon && this.sunOrMoonUp() ?
+            // this.moon && this.sunOrMoonUp() ?
+            this.inRange(this.ranges.moonlight) ?
               this.data.moonintensity : // moon is up
+            // this.starlight && !this.sunOrMoonUp() ?
+            this.inRange(this.ranges.extendedStarRange) ?
+              0.005 : // stars pre-and-post moon
               1 // shouldn't happen, flash to make reasoning error obvious
           if (this.data.debug && this.lights.intensityMultiplier===1) console.warn("light intensity calc problem")
-          this.lights.intensity = this.starlight && !this.sunOrMoonUp() ? this.data.starlightintensity : (0.1 + this.sunPos.y * this.lights.intensityMultiplier);
+          this.lights.intensity = this.inRange(this.ranges.extendedStarRange) ? this.data.starlightintensity : (0.1 + this.sunPos.y * this.lights.intensityMultiplier);
           // this.lights.lightProps.intensity = this.lights.lightProps.intensity < this.data.starlightintensity ? this.data.starlightintensity : this.lights.lightProps.intensity;
           // document.getElementById('lamp').setAttribute('light',this.lights.lightProps);
           // console.log(this.lights.lightProps.intensity, this.lights.intensityMultiplier)
