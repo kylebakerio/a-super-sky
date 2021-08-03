@@ -102,3 +102,4 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 - finish implementing existing options, and add some more of them
 - correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo to sky shader accordingly
 - probably document schema options in readme
+- try exponential fog
