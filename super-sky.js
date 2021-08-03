@@ -1,3 +1,6 @@
+const AFRAME = window.AFRAME
+const THREE = window.THREE
+
 AFRAME.registerPrimitive('a-super-sky', {
   defaultComponents: {
     // mimic the a-sky primitive, to paint our shader on the inside of a sphere as designed
@@ -387,7 +390,7 @@ AFRAME.registerComponent('super-sky', {
           shadowCameraRight: this.data.shadowsize,
           shadowCameraTop: this.data.shadowsize,
 
-          shadowCameraFar: this.data.sunbeamdistance + this.data.shadowsize, // maybe + 50 is better?
+          shadowCameraFar: this.data.sunbeamdistance + 100, // this.data.shadowsize, // shadowsize was not enough
           shadowCameraNear: this.data.sunbeamdistance - 100, // could probably safelu lower this substantially...
 
           target: this.data.sunbeamtarget || "[camera]",
@@ -448,6 +451,7 @@ AFRAME.registerComponent('super-sky', {
         // this.el.appendChild(this.starsOld);
       }
       else {
+        if (this.data.debug) console.log("appending new style star geometry")
         // initializes the BufferGeometry for the stars in >= AF 1.2.0 
         // code here is more or less pulled from aframe-environment-component
         var numStars = this.data.starcount;
