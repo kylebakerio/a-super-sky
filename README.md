@@ -59,8 +59,8 @@ then add a super-sky entity to your scene:
     ></a-super-sky>
 ```
 #### minimum options you should set
-- `cycleduration` is how long 1 sun loop takes (in minutes). By default, a full day is twice this length.
-- _recommended_: set `throttle` as high as you can before it starts looking choppy
+- `cycleduration` is how long 1 sun loop takes (in minutes). By default, a full day is twice this length. (if `mooncycle="false"`, it's 1x this length.)
+- _recommended_: set `throttle` as high as you can before it starts looking choppy,
 - `groundcolor` should be set manually, and is used to calculate more realistic light color.
 - see super-sky.js schema for other options. comments explain their use.
 - see glitch demo or repo index.html (referenced above in this readme) for live examples if unclear.
