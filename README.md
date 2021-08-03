@@ -53,8 +53,10 @@ add to the above:
 then add a super-sky entity to your scene:
 (it's recommended that you set `sunbeamTarget` to the selector that matches your user's camera)
 ```html
-    <a-super-sky="cycleDuration: 1;  groundColor: #7BC8A4;";
-     ></a-super-sky>
+    <a-super-sky 
+        cycleDuration="1"
+        groundColor="#7BC8A4"
+    ></a-super-sky>
 ```
 #### minimum options you should set
 - `cycleduration` is how long 1 sun loop takes (in minutes). By default, a full day is twice this length.
@@ -65,7 +67,7 @@ then add a super-sky entity to your scene:
 
 #### setting a static scene
 - `targetfpd="0"` will mean the scene will freeze and not run any update calculations
--  `startpercent=".25"` means you want the scene to be at the 25% of a full day/night cycle, while `.99` would be just before sunrise. `0` (default) is sunrise itself. `49` would be 1% before moon rises, `.75` would be 'moonset'.
+- `startpercent=".25"` means you want the scene to be at the 25% of a full day/night cycle, while `.99` would be just before sunrise. `0` (default) is sunrise itself. `49` would be 1% before moon rises, `.75` would be 'moonset'.
 
 if you want shadows, add the `shadow` component to entities that you want to cast shadows and receive shadows (allow shadows to be casted upon):
 ```html
