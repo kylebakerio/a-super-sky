@@ -56,12 +56,16 @@ then add a super-sky entity to your scene:
     <a-super-sky="cycleDuration: 1;  groundColor: #7BC8A4;";
      ></a-super-sky>
 ```
-**minimum options you should set**
+#### minimum options you should set
 - `cycleduration` is how long 1 sun loop takes (in minutes). By default, a full day is twice this length.
 - _recommended_: set `throttle` as high as you can before it starts looking choppy
 - `groundcolor` should be set manually, and is used to calculate more realistic light color.
 - see super-sky.js schema for other options. comments explain their use.
 - see glitch demo or repo index.html (referenced above in this readme) for live examples if unclear.
+
+#### setting a static scene
+- `targetfpd="0"` will mean the scene will freeze and not run any update calculations
+-  `startpercent=".25"` means you want the scene to be at the 25% of a full day/night cycle, while `.99` would be just before sunrise. `0` (default) is sunrise itself. `49` would be 1% before moon rises, `.75` would be 'moonset'.
 
 if you want shadows, add the `shadow` component to entities that you want to cast shadows and receive shadows (allow shadows to be casted upon):
 ```html
