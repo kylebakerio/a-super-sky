@@ -26,8 +26,9 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 
 ## System Resources + Performance
 - runs easily in oculus quest 2's native browser. this even runs smoothly in google cardboard, it seems.
-- if desired, throttle to reduce resource needs, and just make cycleDuration longer to slow the day down to match.
-- you can remove light sources and the shadow-casting sun to further lighten the load.
+- to improve performance, set `cycleduration` as high as you are willing to, and then `throttle` as high as you can tolerate` before stuttering occurs.
+- you can remove light sources and remove or reduce the shadow-casting sun to further lighten the load.
+- you could also just use this statically instead of dynamically--when doing so, you can also pre-bake shadows for the environment, and only live calc shadows for e.g. your player's character, etc.
 
 ## A-Frame version
 - Tested working with 1.0.4, 1.1.0, and 1.2.0.
@@ -52,12 +53,12 @@ add to the above:
 then add a super-sky entity to your scene:
 (it's recommended that you set `sunbeamTarget` to the selector that matches your user's camera)
 ```html
-    <a-sky 
-        super-sky="cycleDuration: 1;  groundColor: #7BC8A4;";
-     ></a-sky>
+    <a-super-sky="cycleDuration: 1;  groundColor: #7BC8A4;";
+     ></a-super-sky>
 ```
-- `cycleDuration` is how long 1 sun loop takes (in minutes). By default, a full day is twice this length.
-- `groundColor` should be set manually, and is used to calculate more realistic light color.
+**minimum options you should set**
+- `cycleduration` is how long 1 sun loop takes (in minutes). By default, a full day is twice this length.
+- `groundcolor` should be set manually, and is used to calculate more realistic light color.
 - see super-sky.js schema for other options. comments explain their use.
 - see glitch demo or repo index.html (referenced above in this readme) for live examples if unclear.
 
@@ -67,15 +68,32 @@ if you want shadows, add the `shadow` component to entities that you want to cas
     <a-plane shadow="cast:false; receive:true;"></a-plane>
 ```
 
+# Shadows & Lighting tips/FAQ
+**My ground is too shiny / the reflections from the sun/moon are too intense**
+- Add 'roughness' to the material to reduce shininess. In my demos, for example, I use `material="roughness:.633"` on the `<a-plane>` that acts as the ground
+**Shadows cut off when I am not close enough to them
+- Shadows aren't trivial and come with a cost. You can up the shadow render square with the `shadowsize` attribute, which underneath affects the `light.shadowCamera` left/right/top/bottom values. This is how many meters from the `sunbeamtarget` you calculate shadows from. Keep in mind that too large and the shadows get lower res... you'll need to start crafting some custom light/shadowCamera values here.
+- You might also change the `sunbeamtarget` attribute, depending on your scene. This is the center of the invisible box around which shadows are calculated. By default, in this app, it's the user's view (so, `[camera]`), and the default is the `shadowsize` attribute of 15m (so, shadows are calculated within a 30m box around the user). If you only have things shadows should be cast from in the middle of the map, but want to see them even from far away, setting the target to the center of your map would work. This will make surface reflections during sunrise/sunset be a bit off, though, so probably compensate for that (e.g., add roughness to the appropriate material) to cover that up.
+- You can consider obscuring the user's field of view so that they can rarely see out in the distance, as well, to prevent this from being an issue. (e.g., high features surround you, instead of wide open vistas).
+**It gets too dark at night**
+- Add a light source if your scene can handle it, or adjust `starlightintensity` to a higher than default (.1) value (like .2) if you want to use fewer lights for higher performance/simplicity.
+**I get weird shadow artifacts**
+- Look into [shadow bias](https://aframe.io/docs/1.2.0/components/light.html#configuring_shadows_shadowbias), and if you changed the default values for the `sunbeamdistance`, that's probably the cause.
+**How do I turn off shadows?**
+- `showshadowlight='false'`
+**How do I keep shadows but make them higher performance?**
+- make `shadowsize` smaller (default is 15), make `cycleduration` as high as you can make sense of, and then make `throttle` (default 10ms) as high as you can before the updates look choppy. Beyond that, change `shadowMapHeight` and `shadowMapWidth` of the `sunbeam` to a lower value (default is 1024; try 512, or even further down to 256).
+**My question isn't here.**
+- You can file an issue, I'd be interested to hear. But honestly, you should probably see [the docs](https://aframe.io/docs/1.2.0/components/light.html#configuring-shadows) to dig deeper into this. I'm not an expert.
 
 # TODO:
+**spinny stuff**
 - better method for changing moon rise/set position than a-scene rotation? finishing implementing rotation option
 - slightly rotate stars over the course of a night
 - enable better control of sun/moon trajectory through sky (allow e.g. lower moon)
-- more code cleanup and testing
+
+**etc**
 - currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable--maybe speeding up or skipping phases when neither sun nor moon
-- finish building out options, update sources and demos to new version
-- correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo
-- new video showing improved version with shadows, but also correct lighting color and intensity gradients
-- document schema options in readme
-- explain how to work with shadowbox, point to shadow documentation
+- finish implementing existing options, and add some more of them
+- correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo to sky shader accordingly
+- probably document schema options in readme
