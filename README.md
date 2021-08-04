@@ -8,7 +8,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 ![sunset-room-shadow](https://user-images.githubusercontent.com/6391152/127769302-772c0c2d-246e-4c7e-87dd-f4a94e7b77b7.png)
 
 # features!
-- highly performant out of the box even with maximum settings enabled
+- highly performant out of the box even with maximum settings enabled, and auto-throttles self if sky is slow enough to allow.
 - sunrise, daytime, and sunset feature beautiful rayleigh scattering colors in the sky
 - `fog` creates feeling of creeping shadowy darkness after sunset, that then retreats as stars slowly fade into view and light the scene, without the cost of the equivalent shadows
 - subtle 'colored' fog and lighting on the horizon adds a sense of depth and realism to the day and night's different stages
@@ -69,13 +69,18 @@ then add a super-sky entity to your scene:
 
 #### setting a static scene
 - `targetfpd="0"` will mean the scene will freeze and not run any update calculations
-- `startpercent=".25"` means you want the scene to be at the 25% of a full day/night cycle, while `.99` would be just before sunrise. `0` (default) is sunrise itself. `49` would be 1% before moon rises, `.75` would be 'moonset'.
+- `startpercent=".25"` means you want the scene to be at the 25% of a full day/night cycle, while `.99` would be just before sunrise. `0` (default) is sunrise itself. `49` would be 1% before moon rises, `.75` would be 'moonset'. (If `mooncycle=false`, it's percent of just the sun rotation, instead of sun+moon rotations.)
 
 if you want shadows, add the `shadow` component to entities that you want to cast shadows and receive shadows (allow shadows to be casted upon):
 ```html
     <a-sphere shadow="cast:true; receive:true;"></a-sphere>
     <a-plane shadow="cast:false; receive:true;"></a-plane>
 ```
+
+## how does the auto-tuning work?
+- Set `orbitduration` to whatever you want. The higher the number, the slower the sky. The slower the sky, the less often calculations need to be done to update it while still looking smooth.
+- By default will auto-throttles sky calculation frequency according to duration--sets a 40fps cap by default, but will drop below that if 33 frames per degree of motion are being attained, which happens if the `orbitduration` starts to be above `11` (unit is in minutes), which would be 20 minutes for a day/night cycle if `mooncycle="true"`. You can see logged output regarding the tuning, throttle, fps, fpd (frames per degree), etc. when `super-sky-debug="true"`/.
+- You can manually set the throttle if desired, instead, which sets the minimum milliseconds to wait between calculations. Alternatively, you can set `targetfpd` (target frames per degree) if desired.
 
 ## Updating values after init?
 I want to assume it's somehow my fault, but for some reason in my tests `oldData` is almost always coming in as an empty object, and in general I'm observing very strange behavior when trying to use the 'correct' `update()` functionality for A-Frame components? I'll file an issue here, but in the meantime I've just worked around the issue...
