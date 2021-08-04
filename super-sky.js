@@ -21,10 +21,9 @@ AFRAME.registerPrimitive('a-super-sky', {
     'super-sky': {},
   },
   mappings: {
-    static: 'super-sky.static',    
-    targetfpd: 'super-sky.targetfpd',    
     orbitduration: 'super-sky.orbitduration',
     throttle: 'super-sky.throttle',
+    targetfpd: 'super-sky.targetfpd',    
     starttime: 'super-sky.starttime',
     startpercent: 'super-sky.startpercent',
     mooncycle: 'super-sky.mooncycle',
@@ -81,9 +80,7 @@ AFRAME.registerComponent('super-sky', {
       },
       targetfpd: { // fpd = frames per degree
         // -1 means that an auto-set value will be used
-
-        // if left at 0, will use an auto-calculated sane value relative to orbitduration
-        // set to -1 to make scene static
+        // set to 0 to make scene static
         // fpd of '1' would mean the sun/moon will 'click' into each 1/360 position of its rotation, '2' would mean per .5 degree, and so on
         // sane value is usually around 10 (per 10th of a degree, attempt refresh)
         type: 'number',
@@ -92,14 +89,12 @@ AFRAME.registerComponent('super-sky', {
       starttime: {
         // this will be auto-set to date.now(), but you can specify a start time to sync the sky to other
         // users or to a consistent in-world epoch time.
-        // not currently working
         type: 'number',
         default: 0,
       },
       startpercent: {
         // percent of full day/night (or day, if moon cycle disabled) to skip at initialization
         // .83 = start at 83% of a full cycle
-        // not currently working
         type: 'number',
         default: 0,
       },
@@ -275,9 +270,9 @@ AFRAME.registerComponent('super-sky', {
     },
 
     init: function () {
-      if (!this.data.debug) this.trackPerformance = () => {};
-      
-      this.el.setAttribute('class', 'super-sky')
+      // see update()
+      this.el.classList.add('super-sky');
+      this.tickBackup = this.tick;
       
       if (AFRAME.version === "1.0.4" || AFRAME.version === "1.1.0" || AFRAME.version[0] === "0") {
         if (this.data.debug) console.warn("detected pre 1.2.0, make sure to include star library (see readme)");
@@ -287,57 +282,80 @@ AFRAME.registerComponent('super-sky', {
         if (this.data.debug) console.log("detected AFRAME >=1.2.0, highest tested is 1.2.0");
         this.version = 1;
       }
-      this.setThrottle()
-      this.sky = this.el;
-      this.sky.setAttribute('id', 'star-sky');
-      this.sky.setAttribute('material', 'opacity', 0); // may not be necessary
-      // debugger
-      this.sky.setAttribute('geometry', 'radius', this.data.sunshaderdistance);
-      this.sky.setAttribute('geometry', 'thetaLength', 110);
-      this.sky.setAttribute('material', 'shader', 'sky');
-      // this.el.appendChild(this.sky);
-
-      if (!this.data.startTime) {
-        this.data.starttime = Date.now();
-      }
-      else if (this.data.debug) {
-        console.log('will use custom startTime:', this.data.starttime)
-      }
       
-      if (this.data.startpercent) {
+      this.sky = this.el;
+      this.sky.classList.add('star-sky');
+      this.sky.setAttribute('material', 'opacity', 0); // may not be necessary anymore
+      this.sky.setAttribute('material', 'shader', 'sky');
+      this.sky.setAttribute('geometry', 'thetaLength', 110);      
+    },
+  
+    throttle: 0, // dynamically set
+    // initializer functions, broken out from this.init() so that they can be re-called from update() if needed
+    f: {
+      setThrottle() {
+        this.msPerDegree = (this.data.orbitduration/360)*1000*60;
+
+        if (this.data.targetfpd === -1) {
+          if (this.data.debug) console.log("no given targetfpd, will fall back to 40fps (throttle=25) / 60fpd cap default");
+          this.data.targetfpd = this.msPerDegree / 25 // first aim for 40fps minimum, but...
+          this.data.targetfpd = this.data.targetfpd > 60 ? 60 : this.data.targetfpd; // if we're getting more than 60 renders per degree, set the ceiling her to massively reduce renders
+        }
+
+        if (this.data.throttle !== -1) {
+          if (this.data.debug) console.warn("custom throttle set, will ignore targetfpd")
+          this.throttle = this.data.throttle;
+          this.data.targetfpd = this.msPerDegree / this.throttle;
+        }
+        else if (this.data.targetfpd === 0) {
+          if (this.data.debug) console.warn("static sky")
+          this.tickBackup = this.tick;
+          this.throttle = Infinity;
+          return
+        }
+        else {
+          this.throttle = this.msPerDegree / this.data.targetfpd;
+        }
+        
+        this.fps = 1000/this.throttle;
+        
+        if (this.data.debug) {
+          console.log(this.cleanNumber(this.msPerDegree),'ms per degree at',this.cleanNumber(this.data.targetfpd),',fpd; throttle:',this.cleanNumber(this.throttle),', fps:',this.cleanNumber(this.fps));
+          if (this.throttle < 10 || this.fps > 60) console.warn("likely wasteful rendering; consider setting `targetfpd` below", this.cleanNumber(this.data.targetfpd / (15 / this.throttle)),"to optimize performance");
+          else if (this.data.targetfpd < 60 && this.fps < 40) console.warn("animation may be choppy; if needed, consider increasing cycleduration, or setting `targetfpd` above", this.cleanNumber(this.data.targetfpd / (50 / this.throttle))+0.01,"to improve");
+        }
+        
+        this.tick = AFRAME.utils.throttleTick(this.tickBackup, this.throttle, this);
+      },
+      startFromPercent() {
+        if (this.data.startpercent < 0) this.data.startpercent = 1 - (-this.data.startpercent % 1) ;
         if (this.data.mooncycle && (this.data.startpercent % 1) >= .5) {
           this.secondHalf = true;
           this.moon = true;
         }
+        this.moonSunSwitchFlag = false;
         const cycleInMs = (this.data.orbitduration * 1000 * 60) * (this.data.mooncycle ? 2 : 1)
         this.data.starttime = Date.now() - (this.data.startpercent * cycleInMs);
         this.getOrbit()
         this.setStarLoop()
+// add stars if needed
         this.getEighth()
         this.getEighthStarLoop()
+        
+        if (this.inRange(this.ranges.extendedStarRange)) {
+          console.warn("add stars")
+          this.setStars()
+        } else {
+          console.warn("remove stars")
+          this.setStars(0)
+        }
         
         if (this.data.debug) {
           console.log("skipping first",`${this.data.startpercent*100}%`,(this.data.startpercent * cycleInMs)/1000,'seconds of orbitduration',cycleInMs/1000,Date.now(),'-',this.data.starttime)
           console.log(this.orbit,this.currentEighth,this.currentEighthStarLoop)
         }
-      }
-
-      this.tick = AFRAME.utils.throttleTick(this.tick, this.throttle, this);
-      
-
-      // this.sky = this.starSky // document.createElement('a-sky');
-      
-      // if (this.version === 1) {
-        // this.sky.setAttribute('material', 'shader', 'skyshader');
-        // this.getSunSky().setAttribute('material','shader', this.version === 1 ? 'sky' : 'starSky');
-      // } else {
-        // this.getSunSky().setAttribute('material', 'shader', 'sunSky');
-        // this.getSunSky().setAttribute('material','shader','sunSky');
-        // this.getSunSky().setAttribute('geometry','primitive','sphere');
-        // this.getSunSky().setAttribute('geometry','radius','1000');
-      // }
-      
-      if (this.data.showhemilight) {
+      },
+      hemilight(){
         this.hemilight = document.createElement('a-entity');
         this.hemilight.setAttribute('id','hemilight');
         this.hemilight.setAttribute('position', '0 50 0');
@@ -351,38 +369,8 @@ AFRAME.registerComponent('super-sky', {
         if (this.hemilight) this.hemilight.setAttribute('light', {groundColor: this.data.groundcolor});
         this.el.appendChild(this.hemilight);
         this.activeLights.push(this.hemilight)
-      }
-      
-      if (this.data.showsurfacelight) {
-        if (this.data.debug) {
-          this.sunlight = document.createElement('a-sphere');
-          const nose = document.createElement('a-cone');
-          nose.setAttribute('position','z',1.15)
-          nose.setAttribute('rotation',{'x':270, z:180})
-          nose.setAttribute('scale',{x:.2,y:.2,z:.2})
-          nose.setAttribute('material', 'color', 'blue')
-          this.sunlight.appendChild(nose)
-        } else {
-          this.sunlight = document.createElement('a-entity');
-        }
-
-        this.sunlight.setAttribute('id','sunlight-noshadow');
-        this.sunlight.setAttribute('light', {
-          type:'directional', 
-          intensity: 0.1,
-          shadowCameraVisible: this.data.debug,
-          castShadow: false,
-          shadowCameraLeft: -this.data.shadowsize,
-          shadowCameraBottom: -this.data.shadowsize,
-          shadowCameraRight: this.data.shadowsize,
-          shadowCameraTop: this.data.shadowsize
-        });
-        this.sunlight.setAttribute('visible', true);
-        this.el.appendChild(this.sunlight);
-        this.activeLights.push(this.sunlight)
-      }
-
-      if (this.data.showshadowlight) {
+      },
+      sunbeam() {
         this.sunbeam = document.createElement(this.data.debug ? 'a-sphere' : 'a-entity')
         this.sunbeam.setAttribute('light', {
           type: 'directional',
@@ -410,57 +398,261 @@ AFRAME.registerComponent('super-sky', {
         // this.sunbeam.setAttribute('scale', '1 1 1')
         this.el.appendChild(this.sunbeam);
         this.activeLights.push(this.sunbeam)
-      }
-      
-      // console.warn("setting fog new style, likely needs update")
-      // this.el.sceneEl.setAttribute('fog', {
-      //   // color: this.getFogColor(this.skyType, this.sunPos.y),
-      //   color: this.getLightColor(),
-      //   // far: (1.01 - this.environmentData.fog) * this.STAGE_SIZE * 2
-      // });
+      },
+      surfaceLight() {
+        if (this.data.debug) {
+          this.sunlight = document.createElement('a-sphere');
+          const nose = document.createElement('a-cone');
+          nose.setAttribute('position','z',1.15)
+          nose.setAttribute('rotation',{'x':270, z:180})
+          nose.setAttribute('scale',{x:.2,y:.2,z:.2})
+          nose.setAttribute('material', 'color', 'blue')
+          this.sunlight.appendChild(nose)
+        } else {
+          this.sunlight = document.createElement('a-entity');
+        }
 
-      // temp
-      // document.getElementById('sun').setAttribute('geometry', 'radius', 500);
-      this.cachedSkyRadius = this.data.skyradius // document.getElementById('sun').getAttribute('geometry').radius
+        this.sunlight.setAttribute('id','sunlight-noshadow');
+        this.sunlight.setAttribute('light', {
+          type:'directional', 
+          intensity: 0.1,
+          shadowCameraVisible: this.data.debug,
+          castShadow: false,
+          shadowCameraLeft: -this.data.shadowsize,
+          shadowCameraBottom: -this.data.shadowsize,
+          shadowCameraRight: this.data.shadowsize,
+          shadowCameraTop: this.data.shadowsize
+        });
+        this.sunlight.setAttribute('visible', true);
+        this.el.appendChild(this.sunlight);
+        this.activeLights.push(this.sunlight)
+      },
     },
 
-    throttle: 0, // dynamically set
-    setThrottle() {
-      if (this.data.throttle !== -1) {
-        if (this.data.debug) console.warn("custom throttle set, will ignore targetfpd")
-        this.throttle = this.data.throttle;
-        return
-      }
-      else if (this.data.targetfpd === 0) {
-        if (this.data.debug) console.warn("static scene")
-        this.throttle = Infinity;
-        return
-      }
-      this.msPerDegree = (this.data.orbitduration/360)*1000*60;
-      
-      if (this.data.targetfpd === -1) {
-        if (this.data.debug) console.log("no given targetfpd, will fall back to 40fps cap default");
-        this.data.targetfpd = this.msPerDegree/25 // we set this here only to generate console suggestions about how it might be improved by the user, but we use the auto-set throttle value
-      }
-      
-      this.throttle = this.msPerDegree / this.data.targetfpd;
-      this.fps = 1000/this.throttle;
-      
-      if (this.data.debug) console.log(this.cleanNumber(this.msPerDegree),'ms per degree at',this.cleanNumber(this.data.targetfpd),',fpd; throttle:',this.cleanNumber(this.throttle),', fps:',this.cleanNumber(this.fps));
-      if (this.throttle < 10 || this.fps > 60) console.warn("targetfpd very high; consider setting below", this.cleanNumber(this.data.targetfpd / (15 / this.throttle)),"to optimize performance");
-      else if (this.throttle > 50 || this.fps < 20 || this.data.targetfpd < .5) console.warn("targetfpd may be low; if needed, consider increasing cycleduration, or setting tarfpd above", this.cleanNumber(this.data.targetfpd / (50 / this.throttle))+0.01,"to improve animation smoothness");
-    },
-  
     activeLights: [],
   
-    update(oldData) {
-      if (this.data.groundcolor != oldData.groundcolor) {
-        this.activeLights.forEach(el => {
-          el.setAttribute('light', {'groundColor': this.data.groundcolor});
-        });
-      }
+    // {
+    //   orbitduration: 'super-sky.orbitduration',
+    //   throttle: 'super-sky.throttle',
+    //   targetfpd: 'super-sky.targetfpd',    
+    //   starttime: 'super-sky.starttime',
+    //   startpercent: 'super-sky.startpercent',
+    //   mooncycle: 'super-sky.mooncycle',
+    //   disablefog: 'super-sky.disablefog',
+    //   fogmin: 'super-sky.fogmin',
+    //   showstars: 'super-sky.showstars',
+    //   starcount: 'super-sky.starcount',
+    //   starlightintensity: 'super-sky.starlightintensity',
+    //   starloopstart: 'super-sky.starloopstart',
+    //   showhemilight: 'super-sky.showhemilight',
+    //   showsurfacelight: 'super-sky.showsurfacelight',
+    //   showshadowlight: 'super-sky.showshadowlight',
+    //   groundcolor: 'super-sky.groundcolor',
+    //   sunbeamdistance: 'super-sky.sunbeamdistance',
+    //   starfielddistance: 'super-sky.starfielddistance',
+    //   sunshaderdistance: 'super-sky.sunshaderdistance',
+    //   sunbeamtarget: 'super-sky.sunbeamtarget',
+    //   shadowsize: 'super-sky.shadowsize',
+    //   seed: 'super-sky.seed',
+    //   moonreileigh: 'super-sky.moonreileigh',
+    //   moonluminance: 'super-sky.moonluminance',
+    //   moonturbidity: 'super-sky.moonturbidity',
+    //   moonintensity: 'super-sky.moonintensity',
+    //   sunintensity: 'super-sky.sunintensity',
+    //   sunreileigh: 'super-sky.sunreileigh',
+    //   sunluminance: 'super-sky.sunluminance',
+    //   sunturbidity: 'super-sky.sunturbidity',
+    //   sunriseoffset: 'super-sky.sunriseoffset',
+    //   moonriseoffset: 'super-sky.moonriseoffset',
+    //   'super-sky-debug': 'super-sky.debug',
+    // }
+    changed(key) {
+      return this.oldData[key] !== this.data[key]
     },
+    isEmptyObject: function(testObj) {
+      return (Object.keys(testObj).length === 0 && testObj.constructor === Object);
+    },
+    update(oldData) {
+      // I think this should be handled differently, and is probably automatically handled by tick() behavior
+      // if (this.data.groundcolor != oldData.groundcolor) {
+      //   this.activeLights.forEach(el => {
+      //     el.setAttribute('light', {'groundColor': this.data.groundcolor});
+      //   });
+      // }
 
+      console.log('update dif', AFRAME.utils.diff (oldData, this.data))
+
+      this.oldData = oldData;
+      let firstUpdate = false;
+      if (!this.firstUpdatePast) {
+        this.firstUpdatePast = true;
+        firstUpdate = true;
+        // continue
+      } else if (this.isEmptyObject(oldData)) {
+        // attempts to prevent firing update whenever inspector is opened
+        console.error("skipping update because of empty object...")
+        return
+      }
+      
+      if (!this.data.debug) {
+        this.trackPerformanceBackup = this.trackPerformance;
+        this.trackPerformance = () => {};
+      } else if (this.trackPerformanceBackup) {
+        this.trackPerformance = this.trackPerformanceBackup;
+      }
+      
+      if (this.changed('throttle') || this.changed('targetfpd')) {
+        console.warn("throttle/targetfpd update")
+        if (oldData.targetfpd === 0 && this.data.targetfpd !== 0) this.tick = this.tickBackup; // restore tick to attempt to allow restarting from static scene
+        this.f.setThrottle.bind(this)()
+      }
+      
+      if (this.changed('mooncycle') && !firstUpdate && !this.data.mooncycle) {
+        // turning off moon cycle
+        this.data.startpercent = this.orbit / 360;
+        this.f.startFromPercent.bind(this)();
+        this.tickHandlers() // flip one frame forward to show the change while paused from inspector
+        // this.tickBackup(); 
+      }
+
+      if (!this.data.starttime) {
+        if (this.data.debug) console.log('no custom starttime:', this.data.starttime)
+        this.data.starttime = Date.now();
+      }
+      else if (this.changed('starttime')) {
+        if (this.data.debug) console.log('will use custom starttime:', this.data.starttime)
+        // do we even need to do anything? We could prevent 'jerk' by pausing until the times match, perhaps? Or just slow down by half until times match...?
+        // probably 80/20 is to just ramp up/down fog
+        // and run this.init?
+        
+        // new idea, we now have implemented .updateOrbitDuration(10)
+        // so just do double their orbitduration until percent, and then back to same speed.
+        // increased fog might also be nice, though.
+        this.updateSkyEpoch()
+      }
+      else if (this.changed('startpercent')) {
+        if (this.data.debug) console.log('will use custom startpercent:', this.data.starttime)
+        
+        this.f.startFromPercent.bind(this)();
+      }
+    
+      
+      if (this.changed('showhemilight')) {
+        console.warn("hemi light change update")
+        if (this.hemilight) this.el.removeChild(this.hemilight)
+        if (this.data.showhemilight) this.f.hemilight.bind(this)();
+      }
+      if (this.changed('showsurfacelight')) {
+        console.warn("surface light change update")
+        if (this.sunlight) this.el.removeChild(this.sunlight)
+        if (this.data.showsurfacelight) this.f.surfaceLight.bind(this)();
+      }
+      if (this.changed('showshadowlight') || this.changed('shadowsize')) {
+        console.warn("sunbeam light change update")
+        if (this.sunbeam) this.el.removeChild(this.sunbeam)
+        if (this.data.showshadowlight) this.f.sunbeam.bind(this)();
+      }
+      if (this.changed('sunshaderdistance')) {
+        console.warn("sunshader update")
+        this.sky.setAttribute('geometry', 'radius', this.data.sunshaderdistance);
+      }
+      if (this.changed('sunbeamtarget')) {
+        console.warn("sunbeamtarget update")
+        this.sunbeam.setAttribute('light', 'target', this.data.sunbeamtarget)
+      }
+      
+      if (firstUpdate) return
+      // else
+      // put things that should run on first update below this point
+      
+      if (this.changed('orbitduration')) {
+        // for some reason, update() seems very broken, and this condition will only reliably fire the first time. needs to be done manually in another function, it seems.
+        this.updateOrbitDuration();
+      }
+      if (this.changed('starfielddistance') || this.changed('seed')) {
+        console.warn("starfield update")
+        if (this.stars) {
+          this.el.removeChild(this.stars);
+          delete this.stars;
+        }
+        // no need to add them in, when `this.setStars()` is called, it'll create correctly as needed
+      }
+      
+      if (
+        this.changed('moonreileigh') ||
+        this.changed('moonluminance') ||
+        this.changed('moonturbidity') ||
+        this.changed('sunreileigh') ||
+        this.changed('sunluminance') ||
+        this.changed('sunturbidity') 
+      ) {
+        console.warn("shader update")
+        this.sunShaderTick()
+      }
+      
+      if (
+        this.changed('groundcolor') ||
+        this.changed('moonintensity') ||
+        this.changed('sunintensity') ||
+        this.changed('starlightintensity') ||
+        this.changed('debug') //|| // debug, because we change some stuff for e.g. showing shadowcamera
+        // this.changed('sunturbidity') 
+      ) {
+        console.warn("light color/brightness update")
+        this.lightSourcesTick()
+      }
+      
+    },
+  
+    updateOrbitDuration(newOrbitDuration) {
+      if (newOrbitDuration) {
+        this.data.orbitduration = newOrbitDuration;
+      }
+      console.warn("experimental: orbit duration shift without jerk?")
+      const denom = this.data.mooncycle ? 8 : 4;
+      this.data.startpercent = ((this.currentEighth.which+1) / denom) - ((1-this.currentEighth.percent)/denom)
+      console.log('current percent through cycle:',this.data.startpercent)
+      // this.f.startFromPercent.bind(this)();
+      // this.tickHandlers() // flip one frame forward to show the change while paused from inspector
+      console.warn('will clear old targetfpd and auto-calc new value')
+      this.data.targetfpd = -1
+      this.data.throttle = -1
+      this.f.setThrottle.bind(this)()
+      this.f.startFromPercent.bind(this)();
+    },
+    
+    shareSky() {
+      return {
+        mooncycle: this.data.mooncycle,
+        orbitduration: this.data.orbitduration,
+        starttime: this.data.starttime,
+      };
+    },
+    updateSkyEpoch(newStartTime=this.data.starttime){
+      // set moon cycle      
+      // set orbit duration
+      // set starttime
+      // call this function
+      // e.g.,
+      /*
+        screen1:
+        JSON.stringify(document.querySelector('[super-sky]').components['super-sky'].shareSky())
+        
+        screen2:
+        let user1Sky = JSON.parse(
+        
+        )
+        document.querySelector('[super-sky]').components['super-sky'].data.mooncycle = user1Sky.mooncycle
+        document.querySelector('[super-sky]').components['super-sky'].updateOrbitDuration(user1Sky.orbitduration)
+        document.querySelector('[super-sky]').components['super-sky'].data.starttime = user1Sky.starttime
+        document.querySelector('[super-sky]').components['super-sky'].updateSkyEpoch()
+      */
+      this.data.startpercent = this.timestampToOrbitPercent(newStartTime, this.data.mooncycle);
+      console.warn("will attempt to start with new time percent", this.data.startpercent)
+      this.f.startFromPercent.bind(this)();
+    },
+    
+  
    // Custom Math.random() with seed. Given this.environmentData.seed and x, it always returns the same "random" number
     random: function (x) {
       return parseFloat('0.' + Math.sin(this.data.seed * 9999 * x).toString().substr(7));
@@ -468,7 +660,7 @@ AFRAME.registerComponent('super-sky', {
 
     createStars: function() {
       this.stars = document.createElement('a-entity');
-      this.stars.id= 'stars';
+      this.stars.setAttribute('id','stars');
       
       if (this.data.showstars && this.version === 0) {
         if (this.data.debug) console.log("appending old style star system")
@@ -532,14 +724,18 @@ AFRAME.registerComponent('super-sky', {
     starCycle: 0, // dynamic
     fogValue: 0, // dynamic
     fogRangeMax: 1000,
-    getOrbit() {
-      // converts time passed into a fraction of 360, so 0,1,2...359,360,0,1...etc.
-      this.msSinceStart = Date.now() - this.data.starttime;
+    
+    timestampToOrbitPercent(timestamp, x2) {
+      this.msSinceStart = Date.now() - (timestamp||this.data.starttime);
       this.minSinceStart = this.msSinceStart / 1000 / 60;
-      this.minIntoCycle = this.minSinceStart % this.data.orbitduration;
-      this.fractionOfCurrentCycle = this.minIntoCycle * ( 1 / this.data.orbitduration );
+      this.minIntoCycle = this.minSinceStart % (this.data.orbitduration * (x2 ? 2:1));
+      this.fractionOfCurrentCycle = this.minIntoCycle * ( 1 / (this.data.orbitduration * (x2 ? 2:1)) );
+      return this.fractionOfCurrentCycle;
+    },
+    getOrbit(other) {
+      // converts time passed into a fraction of 360, so 0,1,2...359,360,0,1...etc.
       // if (this.fractionOfCurrentCycle < 0) this.fractionOfCurrentCycle = -this.fractionOfCurrentCycle // might be wrong, just a test
-      this.orbit = 360 * this.fractionOfCurrentCycle;
+      this.orbit = 360 * this.timestampToOrbitPercent();
       return this.orbit;
     },
 
@@ -711,7 +907,8 @@ AFRAME.registerComponent('super-sky', {
     starlight: false, // dynamically set, indicates if stars are an active light source, which they are for 3/4s of the day/night cycle
     howManyStars() {
       // can be used to cause stars to drop out one by one, fog creates more attractive effect, though.
-      return (1 - Math.max(0, ( this.sunPos.y + 0.08) * 8)) * this.data.starcount; 
+      return this.data.starcount; 
+      // return (1 - Math.max(0, ( this.sunPos.y + 0.08) * 8)) * this.data.starcount; 
     },
 
     sunPosition: {x:0,y:0,z:-1}, // dynamically set
@@ -723,8 +920,9 @@ AFRAME.registerComponent('super-sky', {
     lastTick: Date.now(),
     slowTickBuildup: 0,
     tolerance: -10, // normal ms delay
+    notified: false,
     trackPerformance() {
-      // NOTE, DOES NOT RUN UNLESS DEBUG ENABLED
+      // NOTE: DOES NOT RUN UNLESS DEBUG ENABLED
       // console.log(this.throttle - (Date.now()-this.lastTick),this.tolerance)
       if (this.throttle - (Date.now()-this.lastTick) < this.tolerance) {
         // if (this.data.debug) console.warn("slow tick")
@@ -733,15 +931,21 @@ AFRAME.registerComponent('super-sky', {
         this.slowTickBuildup--
       }
       if (this.slowTickBuildup > 5) {
-        if (this.data.debug) console.error("demands too high, should increase throttle and reduce cycleduration", this.slowTickBuildup)
+        if (!this.notified)
+        if (this.data.debug) console.error("demands may be too high, should increase throttle and reduce cycleduration", this.slowTickBuildup, this.throttle, this.throttle - (Date.now()-this.lastTick) )
+        this.notified = true;
       }
-      // console.log("tslt",)
+      else if (!this.slowTickBuildup) this.notified = false;
+
       this.lastTick = Date.now();
     },
     tick() {
       this.trackPerformance()
-
       this.orbit = this.getOrbit();
+      
+      this.tickHandlers(); // why? so we can call 'tick' when changing settings but without updating the orbit, if we are paused.
+    },
+    tickHandlers(){
       if (this.data.mooncycle) {
         this.handleMoonCycle(this.orbit);
       }
@@ -749,7 +953,6 @@ AFRAME.registerComponent('super-sky', {
       this.sunShaderTick();
       this.lightSourcesTick();
     },
-
     sunShaderTick() {
       // draw the surface of the sphere with sunrise/sunset/moonlight colors, and 'visible' sun/moon
       this.sunPosition.x = Math.cos(this.phi());
