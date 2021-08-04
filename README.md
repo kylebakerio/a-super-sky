@@ -89,10 +89,20 @@ I want to assume it's somehow my fault, but for some reason in my tests `oldData
 ### sync user time?
 Easiest way? Pick hardcoded 'starttime', 'orbitduration' and 'mooncycle' values for your app. Voila, if their browser has correct time, then it'll always be in sync for all users. Use the correct/same values at instantiation.
 
-For now, I'll stick with that, but 95% of work is done towards being able to animate towards newly received skystate smoothly. Actual finished result would plan to be a nicely animated transition to the new settings, and would just be a single function call to generate all values needed to sync sky in one object, and a single function to accept those values and animate the transition smoothly. Why do this? To enable things like a room host updating the sky playback speed while keeping other room members in sync.
+snap/sync after the fact can be done for now this way:
+```js
+// comp1
+        JSON.stringify(document.querySelector('[super-sky]').components['super-sky'].shareSky())
 
-(In the meantime, if you are willing to add in your own fog animation to obsure user's view, you could also just 'draw the curtains' and then update the necessary values.)
-
+// comp2
+let user1Sky = JSON.parse(
+        "{\"mooncycle\":true,\"orbitduration\":1.1,\"starttime\":1628045331326}"
+        )
+        document.querySelector('[super-sky]').components['super-sky'].data.mooncycle = user1Sky.mooncycle
+        document.querySelector('[super-sky]').components['super-sky'].updateOrbitDuration(user1Sky.orbitduration)
+        document.querySelector('[super-sky]').components['super-sky'].data.starttime = user1Sky.starttime
+        document.querySelector('[super-sky]').components['super-sky'].updateSkyEpoch()
+```
 
 # Tips & FAQ
 ## shadows & lighting
