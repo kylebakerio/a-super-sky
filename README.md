@@ -17,11 +17,13 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 - **now with real time shadow-casting lighting from the sun and moon!**
 - intensity-matching hemisphere light for a natural/appropriate ambient lighting to match the directional lighting
 - all light sources can be enabled/disabled/adjusted, and have sane, natural feeling defaults (e.g., softer light from stars, soft light from moon)
+- pause, play, speed up, slow down all possible
+- calculate sky to align with any fixed epoch time, thereby making multi-user sync'd skies simple, as well as in-world consistency over many sessions
 
 # demos
 - play with live functioning code [on glitch](https://glitch.com/edit/#!/a-super-sky-demo?path=index.html%3A1%3A0) ([as a page](https://a-super-sky-demo.glitch.me/))
 - this repo's demo html: index.html in this repo [live](https://kylebakerio.github.io/a-super-sky/)
-
+    
 # compatibility
 
 ## System Resources + Performance
@@ -75,6 +77,23 @@ if you want shadows, add the `shadow` component to entities that you want to cas
     <a-plane shadow="cast:false; receive:true;"></a-plane>
 ```
 
+## Updating values after init?
+I want to assume it's somehow my fault, but for some reason in my tests `oldData` is almost always coming in as an empty object, and in general I'm observing very strange behavior when trying to use the 'correct' `update()` functionality for A-Frame components? I'll file an issue here, but in the meantime I've just worked around the issue...
+
+### update speed of orbit without lurching sky
+`document.querySelector('[super-sky]').components['super-sky'].updateOrbitDuration(.1)`
+### pause sky suddenly
+`document.querySelector('[super-sky]').components['super-sky'].updateOrbitDuration(10000)`
+### play again
+`document.querySelector('[super-sky]').components['super-sky'].updateOrbitDuration(.1)`
+### sync user time?
+Easiest way? Pick hardcoded 'starttime', 'orbitduration' and 'mooncycle' values for your app. Voila, if their browser has correct time, then it'll always be in sync for all users. Use the correct/same values at instantiation.
+
+For now, I'll stick with that, but 95% of work is done towards being able to animate towards newly received skystate smoothly. Actual finished result would plan to be a nicely animated transition to the new settings, and would just be a single function call to generate all values needed to sync sky in one object, and a single function to accept those values and animate the transition smoothly. Why do this? To enable things like a room host updating the sky playback speed while keeping other room members in sync.
+
+(In the meantime, if you are willing to add in your own fog animation to obsure user's view, you could also just 'draw the curtains' and then update the necessary values.)
+
+
 # Tips & FAQ
 ## shadows & lighting
 #### My ground is too shiny / the reflections from the sun/moon are too intense
@@ -102,7 +121,7 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 
 # TODO:
 #### enable update functionality
-- no `update()`
+- figure out why A-Frame's `update()` functionality seems completely borked?
 
 #### spinny stuff
 - better method for changing moon rise/set position than a-scene rotation? finishing implementing rotation option
