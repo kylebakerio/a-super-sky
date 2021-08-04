@@ -92,16 +92,16 @@ Easiest way? Pick hardcoded 'starttime', 'orbitduration' and 'mooncycle' values 
 snap/sync after the fact can be done for now this way:
 ```js
 // comp1
-        JSON.stringify(document.querySelector('[super-sky]').components['super-sky'].shareSky())
-
+let user1Sky = JSON.stringify(document.querySelector('[super-sky]').components['super-sky'].shareSky())
+        // "{\"mooncycle\":true,\"orbitduration\":1.1,\"starttime\":1628045331326}"
 // comp2
 let user1Sky = JSON.parse(
         "{\"mooncycle\":true,\"orbitduration\":1.1,\"starttime\":1628045331326}"
-        )
-        document.querySelector('[super-sky]').components['super-sky'].data.mooncycle = user1Sky.mooncycle
-        document.querySelector('[super-sky]').components['super-sky'].updateOrbitDuration(user1Sky.orbitduration)
-        document.querySelector('[super-sky]').components['super-sky'].data.starttime = user1Sky.starttime
-        document.querySelector('[super-sky]').components['super-sky'].updateSkyEpoch()
+        );
+document.querySelector('[super-sky]').components['super-sky'].data.mooncycle = user1Sky.mooncycle
+document.querySelector('[super-sky]').components['super-sky'].updateOrbitDuration(user1Sky.orbitduration)
+document.querySelector('[super-sky]').components['super-sky'].data.starttime = user1Sky.starttime
+document.querySelector('[super-sky]').components['super-sky'].updateSkyEpoch()
 ```
 
 # Tips & FAQ
@@ -143,4 +143,4 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 - finish implementing existing options, and add some more of them
 - correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo to sky shader accordingly
 - probably document schema options in readme
-- try exponential fog
+- try [exponential fog](https://aframe.io/docs/1.2.0/components/fog.html) instead of linear.
