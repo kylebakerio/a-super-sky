@@ -507,7 +507,7 @@ AFRAME.registerComponent('super-sky', {
         this.f.setThrottle.bind(this)()
       }
       
-      if (this.changed('mooncycle') && !firstUpdate && !this.data.mooncycle) {
+      if (this.changed('mooncycle') && !this.data.mooncycle) {
         // turning off moon cycle
         this.data.startpercent = this.orbit / 360;
         this.f.startFromPercent.bind(this)();
@@ -515,12 +515,9 @@ AFRAME.registerComponent('super-sky', {
         // this.tickBackup(); 
       }
 
-      if (!this.data.starttime) {
-        if (this.data.debug) console.log('no custom starttime:', this.data.starttime)
-        this.data.starttime = Date.now();
-      }
-      else if (this.changed('starttime')) {
-        if (this.data.debug) console.log('will use custom starttime:', this.data.starttime)
+
+      if (this.changed('starttime')  && this.data.starttime) {
+        if (this.data.debug) console.log('will use custom starttime:', !!this.data.starttime)
         // do we even need to do anything? We could prevent 'jerk' by pausing until the times match, perhaps? Or just slow down by half until times match...?
         // probably 80/20 is to just ramp up/down fog
         // and run this.init?
@@ -530,12 +527,15 @@ AFRAME.registerComponent('super-sky', {
         // increased fog might also be nice, though.
         this.updateSkyEpoch()
       }
-      else if (this.changed('startpercent')) {
+      else if (this.changed('startpercent') && this.data.startpercent) {
         if (this.data.debug) console.log('will use custom startpercent:', this.data.starttime)
         
         this.f.startFromPercent.bind(this)();
       }
-    
+      else if (!this.data.starttime) {
+        if (this.data.debug) console.log('no custom starttime:', this.data.starttime)
+        this.data.starttime = Date.now();
+      }
       
       if (this.changed('showhemilight')) {
         console.warn("hemi light change update")
