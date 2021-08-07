@@ -343,10 +343,10 @@ AFRAME.registerComponent('super-sky', {
         this.getEighthStarLoop()
         
         if (this.inRange(this.ranges.extendedStarRange)) {
-          console.warn("add stars")
+          if (this.data.debug) console.warn("add stars to init")
           this.setStars()
         } else {
-          console.warn("remove stars")
+          if (this.data.debug) console.warn("remove stars from init")
           this.setStars(0)
         }
         
@@ -480,7 +480,7 @@ AFRAME.registerComponent('super-sky', {
       //   });
       // }
 
-      console.log('update dif', AFRAME.utils.diff (oldData, this.data))
+      if (this.data.debug) console.log('update dif', AFRAME.utils.diff (oldData, this.data))
 
       this.oldData = oldData;
       let firstUpdate = false;
@@ -490,7 +490,7 @@ AFRAME.registerComponent('super-sky', {
         // continue
       } else if (this.isEmptyObject(oldData)) {
         // attempts to prevent firing update whenever inspector is opened
-        console.error("skipping update because of empty object...")
+        if (this.data.debug) console.warn("skipping update because of empty object... update() is broken")
         return
       }
       
@@ -502,7 +502,7 @@ AFRAME.registerComponent('super-sky', {
       }
       
       if (this.changed('throttle') || this.changed('targetfpd')) {
-        console.warn("throttle/targetfpd update")
+        if (this.data.debug) console.warn("throttle/targetfpd update")
         if (oldData.targetfpd === 0 && this.data.targetfpd !== 0) this.tick = this.tickBackup; // restore tick to attempt to allow restarting from static scene
         this.f.setThrottle.bind(this)()
       }
@@ -538,26 +538,26 @@ AFRAME.registerComponent('super-sky', {
       }
       
       if (this.changed('showhemilight')) {
-        console.warn("hemi light change update")
+        if (this.data.debug) console.warn("hemi light change update")
         if (this.hemilight) this.el.removeChild(this.hemilight)
         if (this.data.showhemilight) this.f.hemilight.bind(this)();
       }
       if (this.changed('showsurfacelight')) {
-        console.warn("surface light change update")
+        if (this.data.debug) console.warn("surface light change update")
         if (this.sunlight) this.el.removeChild(this.sunlight)
         if (this.data.showsurfacelight) this.f.surfaceLight.bind(this)();
       }
       if (this.changed('showshadowlight') || this.changed('shadowsize')) {
-        console.warn("sunbeam light change update")
+        if (this.data.debug) console.warn("sunbeam light change update")
         if (this.sunbeam) this.el.removeChild(this.sunbeam)
         if (this.data.showshadowlight) this.f.sunbeam.bind(this)();
       }
       if (this.changed('sunshaderdistance')) {
-        console.warn("sunshader update")
+        if (this.data.debug) console.warn("sunshader update")
         this.sky.setAttribute('geometry', 'radius', this.data.sunshaderdistance);
       }
       if (this.changed('sunbeamtarget')) {
-        console.warn("sunbeamtarget update")
+        if (this.data.debug) console.warn("sunbeamtarget update")
         this.sunbeam.setAttribute('light', 'target', this.data.sunbeamtarget)
       }
       
@@ -570,7 +570,7 @@ AFRAME.registerComponent('super-sky', {
         this.updateOrbitDuration();
       }
       if (this.changed('starfielddistance') || this.changed('seed')) {
-        console.warn("starfield update")
+        if (this.data.debug) console.warn("starfield update")
         if (this.stars) {
           this.el.removeChild(this.stars);
           delete this.stars;
@@ -586,7 +586,7 @@ AFRAME.registerComponent('super-sky', {
         this.changed('sunluminance') ||
         this.changed('sunturbidity') 
       ) {
-        console.warn("shader update")
+        if (this.data.debug) console.warn("shader update")
         this.sunShaderTick()
       }
       
@@ -598,7 +598,7 @@ AFRAME.registerComponent('super-sky', {
         this.changed('debug') //|| // debug, because we change some stuff for e.g. showing shadowcamera
         // this.changed('sunturbidity') 
       ) {
-        console.warn("light color/brightness update")
+        if (this.data.debug) console.warn("light color/brightness update")
         this.lightSourcesTick()
       }
       
@@ -608,13 +608,13 @@ AFRAME.registerComponent('super-sky', {
       if (newOrbitDuration) {
         this.data.orbitduration = newOrbitDuration;
       }
-      console.warn("experimental: orbit duration shift without jerk?")
+      if (this.data.debug) console.warn("experimental: orbit duration shift without jerk?")
       const denom = this.data.mooncycle ? 8 : 4;
       this.data.startpercent = ((this.currentEighth.which+1) / denom) - ((1-this.currentEighth.percent)/denom)
-      console.log('current percent through cycle:',this.data.startpercent)
+      if (this.data.debug) console.log('current percent through cycle:',this.data.startpercent)
       // this.f.startFromPercent.bind(this)();
       // this.tickHandlers() // flip one frame forward to show the change while paused from inspector
-      console.warn('will clear old targetfpd and auto-calc new value')
+      if (this.data.debug) console.warn('will clear old targetfpd and auto-calc new value')
       this.data.targetfpd = -1
       this.data.throttle = -1
       this.f.setThrottle.bind(this)()
@@ -648,7 +648,7 @@ AFRAME.registerComponent('super-sky', {
         document.querySelector('[super-sky]').components['super-sky'].updateSkyEpoch()
       */
       this.data.startpercent = this.timestampToOrbitPercent(newStartTime, this.data.mooncycle);
-      console.warn("will attempt to start with new time percent", this.data.startpercent)
+      if (this.data.debug) console.warn("will attempt to start with new time percent", this.data.startpercent)
       this.f.startFromPercent.bind(this)();
     },
     
