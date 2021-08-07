@@ -43,12 +43,12 @@ AFRAME.registerPrimitive('a-super-sky', {
     sunbeamtarget: 'super-sky.sunbeamtarget',
     shadowsize: 'super-sky.shadowsize',
     seed: 'super-sky.seed',
-    moonreileigh: 'super-sky.moonreileigh',
+    moonrayleigh: 'super-sky.moonrayleigh',
     moonluminance: 'super-sky.moonluminance',
     moonturbidity: 'super-sky.moonturbidity',
     moonintensity: 'super-sky.moonintensity',
     sunintensity: 'super-sky.sunintensity',
-    sunreileigh: 'super-sky.sunreileigh',
+    sunrayleigh: 'super-sky.sunrayleigh',
     sunluminance: 'super-sky.sunluminance',
     sunturbidity: 'super-sky.sunturbidity',
     sunriseoffset: 'super-sky.sunriseoffset',
@@ -188,7 +188,7 @@ AFRAME.registerComponent('super-sky', {
         // should be within (so, smaller than) the sunshaderdistance
         // starfield depth will be auto-set to be the difference between starfield and shader,
         type: 'number',
-        default: 200,        
+        default: 900,        
       },
       sunshaderdistance: {
         // the 'sun'/'moon' you see is projected on the inside of a sphere. this can be any distance by itself,
@@ -220,7 +220,7 @@ AFRAME.registerComponent('super-sky', {
       
       // shader variations between night and day:
       // moonheight // todo
-      moonreileigh: {
+      moonrayleigh: {
         //number from 0 to 1; higher causes more red in the sky
         type: 'number',
         default: 0.1, 
@@ -235,7 +235,7 @@ AFRAME.registerComponent('super-sky', {
         type: 'number',
         default: .3,
       },
-      sunreileigh: {
+      sunrayleigh: {
         type: 'number',
         default: 1, //number from 0 to 1
       },
@@ -454,12 +454,12 @@ AFRAME.registerComponent('super-sky', {
     //   sunbeamtarget: 'super-sky.sunbeamtarget',
     //   shadowsize: 'super-sky.shadowsize',
     //   seed: 'super-sky.seed',
-    //   moonreileigh: 'super-sky.moonreileigh',
+    //   moonrayleigh: 'super-sky.moonrayleigh',
     //   moonluminance: 'super-sky.moonluminance',
     //   moonturbidity: 'super-sky.moonturbidity',
     //   moonintensity: 'super-sky.moonintensity',
     //   sunintensity: 'super-sky.sunintensity',
-    //   sunreileigh: 'super-sky.sunreileigh',
+    //   sunrayleigh: 'super-sky.sunrayleigh',
     //   sunluminance: 'super-sky.sunluminance',
     //   sunturbidity: 'super-sky.sunturbidity',
     //   sunriseoffset: 'super-sky.sunriseoffset',
@@ -507,7 +507,7 @@ AFRAME.registerComponent('super-sky', {
         this.f.setThrottle.bind(this)()
       }
       
-      if (this.changed('mooncycle') && !firstUpdate && !this.data.mooncycle) {
+      if (this.changed('mooncycle') && !this.data.mooncycle) {
         // turning off moon cycle
         this.data.startpercent = this.orbit / 360;
         this.f.startFromPercent.bind(this)();
@@ -515,12 +515,9 @@ AFRAME.registerComponent('super-sky', {
         // this.tickBackup(); 
       }
 
-      if (!this.data.starttime) {
-        if (this.data.debug) console.log('no custom starttime:', this.data.starttime)
-        this.data.starttime = Date.now();
-      }
-      else if (this.changed('starttime')) {
-        if (this.data.debug) console.log('will use custom starttime:', this.data.starttime)
+
+      if (this.changed('starttime')  && this.data.starttime) {
+        if (this.data.debug) console.log('will use custom starttime:', !!this.data.starttime)
         // do we even need to do anything? We could prevent 'jerk' by pausing until the times match, perhaps? Or just slow down by half until times match...?
         // probably 80/20 is to just ramp up/down fog
         // and run this.init?
@@ -530,12 +527,15 @@ AFRAME.registerComponent('super-sky', {
         // increased fog might also be nice, though.
         this.updateSkyEpoch()
       }
-      else if (this.changed('startpercent')) {
+      else if (this.changed('startpercent') && this.data.startpercent) {
         if (this.data.debug) console.log('will use custom startpercent:', this.data.starttime)
         
         this.f.startFromPercent.bind(this)();
       }
-    
+      else if (!this.data.starttime) {
+        if (this.data.debug) console.log('no custom starttime:', this.data.starttime)
+        this.data.starttime = Date.now();
+      }
       
       if (this.changed('showhemilight')) {
         console.warn("hemi light change update")
@@ -579,10 +579,10 @@ AFRAME.registerComponent('super-sky', {
       }
       
       if (
-        this.changed('moonreileigh') ||
+        this.changed('moonrayleigh') ||
         this.changed('moonluminance') ||
         this.changed('moonturbidity') ||
-        this.changed('sunreileigh') ||
+        this.changed('sunrayleigh') ||
         this.changed('sunluminance') ||
         this.changed('sunturbidity') 
       ) {
@@ -963,7 +963,7 @@ AFRAME.registerComponent('super-sky', {
       this.sky.setAttribute('material', this.sunSkyMaterial);      
     },
     sunSkyMaterial: { // dynamically set
-      reileigh: 1,
+      rayleigh: 1,
       luminance: 1,
       turbidity: .8,
     },
@@ -976,7 +976,7 @@ AFRAME.registerComponent('super-sky', {
         // console.log("moon to sun", this.currentEighthStarLoop.which)
         // label = this.currentEighthStarLoop.which+' moon to sun; ';
         // from moon to sun
-        this.sunSkyMaterial.reileigh = this.data.moonreileigh + (this.currentEighthStarLoop.percent * (this.data.sunreileigh - this.data.moonreileigh));
+        this.sunSkyMaterial.rayleigh = this.data.moonrayleigh + (this.currentEighthStarLoop.percent * (this.data.sunrayleigh - this.data.moonrayleigh));
         this.sunSkyMaterial.luminance = this.data.moonluminance + (this.currentEighthStarLoop.percent * (this.data.sunluminance - this.data.moonluminance));
         this.sunSkyMaterial.turbidity = this.data.moonturbidity + (this.currentEighthStarLoop.percent * (this.data.sunturbidity - this.data.moonturbidity));
       }
@@ -985,7 +985,7 @@ AFRAME.registerComponent('super-sky', {
         // console.log("sun", this.currentEighthStarLoop.which)
         // label = this.currentEighthStarLoop.which+' sun; ';
         // straight sun
-        this.sunSkyMaterial.reileigh = this.data.sunreileigh
+        this.sunSkyMaterial.rayleigh = this.data.sunrayleigh
         this.sunSkyMaterial.luminance = this.data.sunluminance
         this.sunSkyMaterial.turbidity = this.data.sunturbidity
       }
@@ -995,7 +995,7 @@ AFRAME.registerComponent('super-sky', {
         // sun to moon
         // label = this.currentEighthStarLoop.which+' sun to moon; ';
         // 1 -(0.24266666666666703 * (1 - 0.1))
-        this.sunSkyMaterial.reileigh = (this.data.sunreileigh - (this.currentEighthStarLoop.percent * (this.data.sunreileigh - this.data.moonreileigh)) );
+        this.sunSkyMaterial.rayleigh = (this.data.sunrayleigh - (this.currentEighthStarLoop.percent * (this.data.sunrayleigh - this.data.moonrayleigh)) );
         this.sunSkyMaterial.luminance = (this.data.sunluminance - (this.currentEighthStarLoop.percent * (this.data.sunluminance - this.data.moonluminance)) );
         this.sunSkyMaterial.turbidity = (this.data.sunturbidity - (this.currentEighthStarLoop.percent * (this.data.sunturbidity - this.data.moonturbidity)) );
         // debugger;
@@ -1005,14 +1005,14 @@ AFRAME.registerComponent('super-sky', {
         // console.log('moon')
         // straight moon
         // label = this.currentEighthStarLoop.which+' moon; ';
-        this.sunSkyMaterial.reileigh = this.data.moonreileigh
+        this.sunSkyMaterial.rayleigh = this.data.moonrayleigh
         this.sunSkyMaterial.luminance = this.data.moonluminance
         this.sunSkyMaterial.turbidity = this.data.moonturbidity
       }
       
-      // document.querySelector('#log2').setAttribute('value', label+"r: " +`${this.sunSkyMaterial.reileigh}`+"; l:" +this.sunSkyMaterial.luminance+"; t:"+this.sunSkyMaterial.turbidity)
-      // document.querySelector('#log').setAttribute('value', `sR:${this.data.sunReileigh} SL%:${Math.floor(this.currentEighthStarLoop.percent * 1000) / 1000} mR:${this.data.moonReileigh}`)
-      // console.log(this.currentEighthStarLoop.which, this.sunSkyMaterial.reileigh, `${this.data.sunReileigh} -(${this.currentEighthStarLoop.percent} * (${this.data.sunReileigh} - ${this.data.moonReileigh}))`)
+      // document.querySelector('#log2').setAttribute('value', label+"r: " +`${this.sunSkyMaterial.rayleigh}`+"; l:" +this.sunSkyMaterial.luminance+"; t:"+this.sunSkyMaterial.turbidity)
+      // document.querySelector('#log').setAttribute('value', `sR:${this.data.sunrayleigh} SL%:${Math.floor(this.currentEighthStarLoop.percent * 1000) / 1000} mR:${this.data.moonrayleigh}`)
+      // console.log(this.currentEighthStarLoop.which, this.sunSkyMaterial.rayleigh, `${this.data.sunrayleigh} -(${this.currentEighthStarLoop.percent} * (${this.data.sunrayleigh} - ${this.data.moonrayleigh}))`)
 
       this.sunSkyMaterial.sunPosition = this.sunPosition // this.version === 0 ? this.sunPosition : this.sunPos
     },
@@ -1241,7 +1241,7 @@ AFRAME.registerComponent('super-sky', {
 
 //
 //
-// sky shader, taken from A-Frame master repo's examples folders, as of v1.2.0
+// sky shader, taken from A-Frame master repo's examples folders, as of V 1.2.0
 //
 //
 /* global AFRAME */
@@ -1249,7 +1249,7 @@ AFRAME.registerShader('sky', {
   schema: {
     luminance: { type: 'number', default: 1, min: 0, max: 2, is: 'uniform' },
     turbidity: { type: 'number', default: 2, min: 0, max: 20, is: 'uniform' },
-    reileigh: { type: 'number', default: 1, min: 0, max: 4, is: 'uniform' },
+    rayleigh: { type: 'number', default: 1, min: 0, max: 4, is: 'uniform' },
     mieCoefficient: { type: 'number', default: 0.005, min: 0, max: 0.1, is: 'uniform' },
     mieDirectionalG: { type: 'number', default: 0.8, min: 0, max: 1, is: 'uniform' },
     sunPosition: { type: 'vec3', default: '0 0 -1', is: 'uniform' }
@@ -1279,7 +1279,7 @@ AFRAME.registerShader('sky', {
 
     'uniform float luminance;',
     'uniform float turbidity;',
-    'uniform float reileigh;',
+    'uniform float rayleigh;',
     'uniform float mieCoefficient;',
     'uniform float mieDirectionalG;',
 
@@ -1364,7 +1364,7 @@ AFRAME.registerShader('sky', {
     '{',
       'float sunfade = 1.0-clamp(1.0-exp((sunPosition.y/450000.0)),0.0,1.0);',
 
-      'float reileighCoefficient = reileigh - (1.0* (1.0-sunfade));',
+      'float rayleighCoefficient = rayleigh - (1.0* (1.0-sunfade));',
 
       'vec3 sunDirection = normalize(sunPosition);',
 
@@ -1373,7 +1373,7 @@ AFRAME.registerShader('sky', {
       '// extinction (absorbtion + out scattering) ',
       '// rayleigh coefficients',
 
-      'vec3 betaR = simplifiedRayleigh() * reileighCoefficient;',
+      'vec3 betaR = simplifiedRayleigh() * rayleighCoefficient;',
 
       '// mie coefficients',
       'vec3 betaM = totalMie(lambda, K, turbidity) * mieCoefficient;',
