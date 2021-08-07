@@ -188,7 +188,7 @@ AFRAME.registerComponent('super-sky', {
         // should be within (so, smaller than) the sunshaderdistance
         // starfield depth will be auto-set to be the difference between starfield and shader,
         type: 'number',
-        default: 200,        
+        default: 900,        
       },
       sunshaderdistance: {
         // the 'sun'/'moon' you see is projected on the inside of a sphere. this can be any distance by itself,
@@ -1241,7 +1241,7 @@ AFRAME.registerComponent('super-sky', {
 
 //
 //
-// sky shader, taken from A-Frame master repo's examples folders, as of v1.2.0
+// sky shader, taken from A-Frame master repo's examples folders, as of V 1.2.0
 //
 //
 /* global AFRAME */
