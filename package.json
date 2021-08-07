@@ -1,0 +1,20 @@
+{
+  "name": "a-super-sky",
+  "version": "1.0.0",
+  "description": "<a href='https://ko-fi.com/kylev' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /><a/>",
+  "main": "super-sky.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kylebakerio/a-super-sky.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kylebakerio/a-super-sky/issues"
+  },
+  "homepage": "https://github.com/kylebakerio/a-super-sky#readme"
+}
