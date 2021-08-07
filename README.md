@@ -56,8 +56,8 @@ then add a super-sky entity to your scene:
 (it's recommended that you set `sunbeamTarget` to the selector that matches your user's camera)
 ```html
     <a-super-sky 
-        cycleDuration="1"
-        groundColor="#7BC8A4"
+        cycleduration="1"
+        groundcolor="#7BC8A4"
     ></a-super-sky>
 ```
 #### minimum options you should set
