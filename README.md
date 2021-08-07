@@ -40,16 +40,15 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 add sources to project:
 
 ### >= 1.2.0
-add sources:
+add to sources:
 ```html
     <script src="https://gitcdn.xyz/repo/aframevr/aframe/master/examples/test/shaders/shaders/sky.js"></script>
-    <script src="https://gitcdn.xyz/repo/kylebakerio/a-super-sky/main/super-sky.js"></script>
 ```
 
 ### <= 1.1.0 (only tested as low as 1.0.4)
 add to the above:
 ```html
-     <script src="https://gitcdn.xyz/repo/handeyeco/aframe-star-system-component/master/index.js"></script>
+     <script src="https://cdn.jsdelivr.net/gh/matthewbryancurtis/aframe-star-system-component@db4f1030/index.js"></script>
 ```
 
 then add a super-sky entity to your scene:
