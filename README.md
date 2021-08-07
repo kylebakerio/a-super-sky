@@ -136,7 +136,7 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 
 # TODO:
 #### enable update functionality
-- figure out why A-Frame's `update()` functionality seems completely borked?
+- figure out why A-Frame's `update()` functionality seems completely borked? Have worked around it for now, but mostly updating values in a-frame inspector, for example, won't work.
 
 #### spinny stuff
 - better method for changing moon rise/set position than a-scene rotation? finishing implementing rotation option
