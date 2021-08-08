@@ -289,7 +289,8 @@ AFRAME.registerComponent('super-sky', {
       this.sky.classList.add('star-sky');
       this.sky.setAttribute('material', 'opacity', 0); // may not be necessary anymore
       this.sky.setAttribute('material', 'shader', 'sky');
-      this.sky.setAttribute('geometry', 'thetaLength', 110);      
+      this.sky.setAttribute('geometry', 'thetaLength', 110);
+      this.fogRangeMax = this.data.starfielddistance * 2;
     },
   
     throttle: 0, // dynamically set
@@ -678,8 +679,8 @@ AFRAME.registerComponent('super-sky', {
         this.stars.setAttribute('star-system',{
           count: this.data.starcount, 
           radius: this.data.starfielddistance,
-          starSize: this.data.starfielddistance / 300, // .25
-          depth: this.data.sunshaderdistance-this.data.starfielddistance,
+          starSize: this.data.starfielddistance / 400, // .25
+          depth: 25, // this.data.sunshaderdistance-this.data.starfielddistance,
         });
         // this.el.appendChild(this.starsOld);
       }
