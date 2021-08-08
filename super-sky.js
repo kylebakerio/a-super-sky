@@ -311,6 +311,7 @@ AFRAME.registerComponent('super-sky', {
           if (this.data.debug) console.warn("static sky")
           this.tickBackup = this.tick;
           this.throttle = Infinity;
+          this.data.throttle = Infinity;          
           return
         }
         else {
