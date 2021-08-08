@@ -186,9 +186,11 @@ AFRAME.registerComponent('super-sky', {
         // how far away the stars are
         // correct distance is important to make sure fog shows/hides them with correct timing
         // should be within (so, smaller than) the sunshaderdistance
+        // should also be within the sunbeam distance, or they won't be illuminated at night
+        // they are finicky on being illuminated properly at diferent depths
         // starfield depth will be auto-set to be the difference between starfield and shader,
         type: 'number',
-        default: 900,        
+        default: 300,        
       },
       sunshaderdistance: {
         // the 'sun'/'moon' you see is projected on the inside of a sphere. this can be any distance by itself,
@@ -676,7 +678,7 @@ AFRAME.registerComponent('super-sky', {
         this.stars.setAttribute('star-system',{
           count: this.data.starcount, 
           radius: this.data.starfielddistance,
-          size: .25,
+          starSize: this.data.starfielddistance / 300, // .25
           depth: this.data.sunshaderdistance-this.data.starfielddistance,
         });
         // this.el.appendChild(this.starsOld);
