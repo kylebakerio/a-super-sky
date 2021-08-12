@@ -62,6 +62,12 @@ then add a super-sky entity to your scene:
         groundcolor="#7BC8A4"
     ></a-super-sky>
 ```
+if using the very popular [aframe environment component](https://github.com/supermedium/aframe-environment-component), make sure you tell it to not set a sky:
+
+```html
+    <a-entity environment="skyType:none; lighting:none; "></a-entity>
+```
+
 #### minimum options you should set
 - `cycleduration` is how long 1 sun loop takes (in minutes). By default, a full day is twice this length. (if `mooncycle="false"`, it's 1x this length.)
 - _optional_: set `throttle` as high as you can before it starts looking choppy. By default, it'll target 40 updates per second (throttle=25), but will auto-tune down from that is `cycleduration` starts to be longer than `10`. You can set `super-sky-debug="true"` to see logging info about the auto-tune throttle state, or run `document.querySelector('[super-sky]').components['super-sky'].throttle` in your console.
