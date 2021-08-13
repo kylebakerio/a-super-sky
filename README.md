@@ -70,7 +70,7 @@ if using the very popular [aframe environment component](https://github.com/supe
 
 #### minimum options you should set
 - `cycleduration` is how long 1 sun loop takes (in minutes). By default, a full day is twice this length. (if `mooncycle="false"`, it's 1x this length.)
-- _optional_: set `throttle` as high as you can before it starts looking choppy. By default, it'll target 40 updates per second (throttle=25), but will auto-tune down from that is `cycleduration` starts to be longer than `10`. You can set `super-sky-debug="true"` to see logging info about the auto-tune throttle state, or run `document.querySelector('[super-sky]').components['super-sky'].throttle` in your console.
+- _optional_: set `throttle` as high as you can before it starts looking choppy. By default, it'll target 40 updates per second (throttle=25), but will proportionately auto-tune down from that if `cycleduration` starts to be longer than `10` (because that's when you stop needing 40 calcs per second to still get enough frames per arc angle in the sky for it to look smooth). You can set `super-sky-debug="true"` to see logging info about the auto-tune throttle state, or run `document.querySelector('[super-sky]').components['super-sky'].throttle` in your console. Net result: the longer your day, the lighter the computational load, and it'll always look smooth.
 - `groundcolor` should be set manually, and is used to calculate more realistic light color.
 - see super-sky.js schema for other options. comments explain their use.
 - see glitch demo or repo index.html (referenced above in this readme) for live examples if unclear.
