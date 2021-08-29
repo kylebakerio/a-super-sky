@@ -45,7 +45,7 @@ add sources to project:
 ### >= 1.2.0
 add to sources:
 ```html
-    <script src="https://cdn.jsdelivr.net/npm/a-super-sky@1.0.0/super-sky.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/a-super-sky@1.1.0/super-sky.js"></script>
 ```
 
 ### <= 1.1.0 (only tested as low as 1.0.4)
