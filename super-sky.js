@@ -630,9 +630,14 @@ AFRAME.registerComponent('super-sky', {
     },
   
     timeOfDay() {
-      return `${Math.floor(this.dayPercent() * 24)}:${Math.floor(this.dayPercent() * 60 * 24) % 60}:${Math.floor(this.dayPercent()* 60 * 60 * 24) % 60}`
+      return `${this.padTime(Math.floor(this.dayPercent() * 24))}:${this.padTime(Math.floor(this.dayPercent() * 60 * 24) % 60)}:${this.padTime(Math.floor(this.dayPercent()* 60 * 60 * 24) % 60)}`
     },
-    
+  
+    padTime(n) {
+      console.log(n, n.length)
+      return (n+"").length < 2 ? "0" + n : ""+n;
+    },
+  
     shareSky() {
       return {
         mooncycle: this.data.mooncycle,
@@ -1132,7 +1137,7 @@ AFRAME.registerComponent('super-sky', {
       },
       posBeam: {},
       posHemi: {},
-      
+
       lightHemi: {},
       lightBeam: {},
     },
