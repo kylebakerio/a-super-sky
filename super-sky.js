@@ -624,6 +624,14 @@ AFRAME.registerComponent('super-sky', {
       this.f.setThrottle.bind(this)()
       this.f.startFromPercent.bind(this)();
     },
+  
+    dayPercent() {
+      return (((this.currentEighth.which/8)+(1/8* this.currentEighth.percent)) + (.125*3) + this.data.startpercent) % 1;
+    },
+  
+    timeOfDay() {
+      return `${Math.floor(this.dayPercent() * 24)}:${Math.floor(this.dayPercent() * 60 * 24) % 60}:${Math.floor(this.dayPercent()* 60 * 60 * 24) % 60}`
+    },
     
     shareSky() {
       return {
@@ -1138,6 +1146,9 @@ AFRAME.registerComponent('super-sky', {
     },
   
     lightSourcesTick() {
+      
+        // console.log(this.timeOfDay())
+      
         // this.offset = this.moon ? this.data.moonriseOffset : this.data.sunriseOffset;
         // this.el.setAttribute('rotation', 'y', -this.offset)
 
