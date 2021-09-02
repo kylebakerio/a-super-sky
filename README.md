@@ -156,3 +156,4 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 - environment component has ability to put sun on the shader anywhere in the sky (using 3x 0-360 inputs), but this code needs updating to allow that. Doing so would allow moon to not follow exact same path as sun, which would be nice. 
 - finish implementing existing options, and add some more of them
 - try [exponential fog](https://aframe.io/docs/1.2.0/components/fog.html) instead of linear.
+- expose a "clock" function that shows time in 24hr/minutes/seconds format that can be accessed.
