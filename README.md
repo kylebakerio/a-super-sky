@@ -142,6 +142,11 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 #### How can I make the fog not apply to X?
 [As per the docs](https://aframe.io/docs/1.2.0/components/fog.html), add `material="fog:false;"` to X.
 
+#### How can I know what "time of day" it is?
+```js
+document.querySelector('[super-sky]').components['super-sky'].timeOfDay()
+```
+
 # TODO:
 #### enable update functionality
 - figure out why A-Frame's `update()` functionality seems completely borked? Have worked around it for now, but mostly updating values in a-frame inspector, for example, won't work.
@@ -156,4 +161,3 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 - environment component has ability to put sun on the shader anywhere in the sky (using 3x 0-360 inputs), but this code needs updating to allow that. Doing so would allow moon to not follow exact same path as sun, which would be nice. 
 - finish implementing existing options, and add some more of them
 - try [exponential fog](https://aframe.io/docs/1.2.0/components/fog.html) instead of linear.
-- expose a "clock" function that shows time in 24hr/minutes/seconds format that can be accessed.
