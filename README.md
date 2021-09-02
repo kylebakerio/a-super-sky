@@ -155,6 +155,4 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 - currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable--maybe speeding up or skipping phases when neither sun nor moon
 - environment component has ability to put sun on the shader anywhere in the sky (using 3x 0-360 inputs), but this code needs updating to allow that. Doing so would allow moon to not follow exact same path as sun, which would be nice. 
 - finish implementing existing options, and add some more of them
-- correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo to sky shader accordingly
-- probably document schema options in readme
 - try [exponential fog](https://aframe.io/docs/1.2.0/components/fog.html) instead of linear.
