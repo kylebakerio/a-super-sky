@@ -634,7 +634,6 @@ AFRAME.registerComponent('super-sky', {
     },
   
     padTime(n) {
-      console.log(n, n.length)
       return (n+"").length < 2 ? "0" + n : ""+n;
     },
   
@@ -653,11 +652,11 @@ AFRAME.registerComponent('super-sky', {
       // e.g.,
       /*
         screen1:
-        JSON.stringify(document.querySelector('[super-sky]').components['super-sky'].shareSky())
+        let user1Sky = JSON.stringify(document.querySelector('[super-sky]').components['super-sky'].shareSky())
         
         screen2:
-        let user1Sky = JSON.parse(
-        
+        user1Sky = JSON.parse(
+          user1Sky
         )
         document.querySelector('[super-sky]').components['super-sky'].data.mooncycle = user1Sky.mooncycle
         document.querySelector('[super-sky]').components['super-sky'].updateOrbitDuration(user1Sky.orbitduration)
