@@ -562,7 +562,7 @@ AFRAME.registerComponent('super-sky', {
       }
       if (this.changed('sunbeamtarget')) {
         if (this.data.debug) console.warn("sunbeamtarget update")
-        this.sunbeam.setAttribute('light', 'target', this.data.sunbeamtarget)
+        this.sunbeam?.setAttribute('light', 'target', this.data.sunbeamtarget)
       }
       
       if (firstUpdate) return
