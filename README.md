@@ -3,7 +3,7 @@
 
 Fancy, lightweight, drop-in day-night sky component for A-Frame.
 
-Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component) for A-Frame 1.1.0 compatible stars; Also borrowed heavily from [aframe-environment-component](https://github.com/supermedium/aframe-environment-component/commit/ab99293ee54826923212aca0dfc112d35b64d970)'s "starry" preset, a static scene, that I used for the 1.2.0 stars and as a starting point to extrapolate fog color to light color. Beyond those, this library adds fog to create a more appealing (imo) star fade in/out effect, stronger sunset effect, and also adds an entity that roughly tracks the sun/moon to allow shining a directional shadow-casting light source from the shader's "sun". Significant effort has been spent creating smooth transitions between all of these moving parts to create a coherent environment.
+Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component) for A-Frame 1.1.0 compatible stars; Also borrowed heavily from [aframe-environment-component](https://github.com/supermedium/aframe-environment-component/commit/ab99293ee54826923212aca0dfc112d35b64d970)'s "starry" preset, a static scene, that I used for the 1.2.0 stars and as a starting point to extrapolate fog color to light color. Beyond those, this library adds controls to enable and control animation, fog to create a more appealing (imo) star fade in/out effect, stronger sunset effect, and also adds a directional light entity that roughly tracks the sun/moon to allow shining a directional shadow-casting light source from the shader's "sun". Significant effort has been spent creating smooth transitions between all of these moving parts to create a coherent environment.
 
 <a href='https://ko-fi.com/kylev' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /><a/>
 
@@ -11,7 +11,7 @@ Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and
 ![sunset-room-shadow](https://user-images.githubusercontent.com/6391152/127769302-772c0c2d-246e-4c7e-87dd-f4a94e7b77b7.png)
 
 # features!
-- highly performant out of the box even with maximum settings enabled, and auto-throttles self if sky is slow enough to allow.
+- highly performant out of the box even with maximum settings enabled, and **auto-throttles self** if sky is slow enough to allow.
 - sunrise, daytime, and sunset feature beautiful rayleigh scattering colors in the sky
 - `fog` creates feeling of creeping shadowy darkness after sunset, that then retreats as stars slowly fade into view and light the scene, without the cost of the equivalent shadows
 - subtle 'colored' fog and lighting on the horizon adds a sense of depth and realism to the day and night's different stages
@@ -45,7 +45,7 @@ add sources to project:
 ### >= 1.2.0
 add to sources:
 ```html
-    <script src="https://cdn.jsdelivr.net/npm/a-super-sky@1.0.0/super-sky.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/a-super-sky@1.1.0/super-sky.js"></script>
 ```
 
 ### <= 1.1.0 (only tested as low as 1.0.4)
@@ -142,6 +142,11 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 #### How can I make the fog not apply to X?
 [As per the docs](https://aframe.io/docs/1.2.0/components/fog.html), add `material="fog:false;"` to X.
 
+#### How can I know what "time of day" it is?
+```js
+document.querySelector('[super-sky]').components['super-sky'].timeOfDay()
+```
+
 # TODO:
 #### enable update functionality
 - figure out why A-Frame's `update()` functionality seems completely borked? Have worked around it for now, but mostly updating values in a-frame inspector, for example, won't work.
@@ -155,6 +160,4 @@ You can file an issue, I'd be interested to hear. But honestly, you should proba
 - currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable--maybe speeding up or skipping phases when neither sun nor moon
 - environment component has ability to put sun on the shader anywhere in the sky (using 3x 0-360 inputs), but this code needs updating to allow that. Doing so would allow moon to not follow exact same path as sun, which would be nice. 
 - finish implementing existing options, and add some more of them
-- correct spelling of 'reileigh' to 'rayleigh' everywhere, pull request on main aframe repo to sky shader accordingly
-- probably document schema options in readme
 - try [exponential fog](https://aframe.io/docs/1.2.0/components/fog.html) instead of linear.

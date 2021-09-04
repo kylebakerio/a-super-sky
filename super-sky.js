@@ -562,7 +562,7 @@ AFRAME.registerComponent('super-sky', {
       }
       if (this.changed('sunbeamtarget')) {
         if (this.data.debug) console.warn("sunbeamtarget update")
-        this.sunbeam.setAttribute('light', 'target', this.data.sunbeamtarget)
+        this.sunbeam?.setAttribute('light', 'target', this.data.sunbeamtarget)
       }
       
       if (firstUpdate) return
@@ -624,7 +624,19 @@ AFRAME.registerComponent('super-sky', {
       this.f.setThrottle.bind(this)()
       this.f.startFromPercent.bind(this)();
     },
-    
+  
+    dayPercent() {
+      return (((this.currentEighth.which/8)+(1/8* this.currentEighth.percent)) + (.125*3) + this.data.startpercent) % 1;
+    },
+  
+    timeOfDay() {
+      return `${this.padTime(Math.floor(this.dayPercent() * 24))}:${this.padTime(Math.floor(this.dayPercent() * 60 * 24) % 60)}:${this.padTime(Math.floor(this.dayPercent()* 60 * 60 * 24) % 60)}`
+    },
+  
+    padTime(n) {
+      return (n+"").length < 2 ? "0" + n : ""+n;
+    },
+  
     shareSky() {
       return {
         mooncycle: this.data.mooncycle,
@@ -640,11 +652,11 @@ AFRAME.registerComponent('super-sky', {
       // e.g.,
       /*
         screen1:
-        JSON.stringify(document.querySelector('[super-sky]').components['super-sky'].shareSky())
+        let user1Sky = JSON.stringify(document.querySelector('[super-sky]').components['super-sky'].shareSky())
         
         screen2:
-        let user1Sky = JSON.parse(
-        
+        user1Sky = JSON.parse(
+          user1Sky
         )
         document.querySelector('[super-sky]').components['super-sky'].data.mooncycle = user1Sky.mooncycle
         document.querySelector('[super-sky]').components['super-sky'].updateOrbitDuration(user1Sky.orbitduration)
@@ -1124,7 +1136,7 @@ AFRAME.registerComponent('super-sky', {
       },
       posBeam: {},
       posHemi: {},
-      
+
       lightHemi: {},
       lightBeam: {},
     },
@@ -1138,6 +1150,9 @@ AFRAME.registerComponent('super-sky', {
     },
   
     lightSourcesTick() {
+      
+        // console.log(this.timeOfDay())
+      
         // this.offset = this.moon ? this.data.moonriseOffset : this.data.sunriseOffset;
         // this.el.setAttribute('rotation', 'y', -this.offset)
 
