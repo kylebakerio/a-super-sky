@@ -149,7 +149,7 @@ document.querySelector('[super-sky]').components['super-sky'].timeOfDay()
 
 # TODO:
 #### enable update functionality
-- figure out why A-Frame's `update()` functionality seems completely borked? Have worked around it for now, but mostly updating values in a-frame inspector, for example, won't work.
+- figure out why A-Frame's `update()` functionality seems completely borked? Have worked around it for now, but mostly updating values in a-frame inspector, for example, won't work. Perhaps related to setting `this.data` directly?
 - add in features from https://github.com/EX3D/aframe-daylight-system !
 
 #### spinny stuff
