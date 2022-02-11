@@ -3,7 +3,7 @@
 
 Fancy, lightweight, drop-in day-night sky component for A-Frame.
 
-Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component) for A-Frame 1.1.0 compatible stars; Also borrowed heavily from [aframe-environment-component](https://github.com/supermedium/aframe-environment-component/commit/ab99293ee54826923212aca0dfc112d35b64d970)'s "starry" preset, a static scene, that I used for the 1.2.0 stars and as a starting point to extrapolate fog color to light color. Beyond those, this library adds controls to enable and control animation, fog to create a more appealing (imo) star fade in/out effect, stronger sunset effect, and also adds a directional light entity that roughly tracks the sun/moon to allow shining a directional shadow-casting light source from the shader's "sun". Significant effort has been spent creating smooth transitions between all of these moving parts to create a coherent environment.
+Utilizes [a-sun-sky](https://supermedium.com/superframe/components/sun-sky/) and [aframe-star-system](https://github.com/handeyeco/aframe-star-system-component) for A-Frame <1.2.0 compatible stars; Also borrowed heavily from [aframe-environment-component](https://github.com/supermedium/aframe-environment-component/commit/ab99293ee54826923212aca0dfc112d35b64d970)'s "starry" preset, a static scene, that I used for the 1.2.0 stars and as a starting point to extrapolate fog color to light color. Beyond those, this library adds controls to enable and control animation, fog to create a more appealing (imo) star fade in/out effect, stronger sunset effect, and also adds a directional light entity that roughly tracks the sun/moon to allow shining a directional shadow-casting light source from the shader's "sun". Significant effort has been spent creating smooth transitions between all of these moving parts to create a coherent environment.
 
 <a href='https://ko-fi.com/kylev' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /><a/>
 
@@ -45,7 +45,7 @@ add sources to project:
 ### >= 1.2.0
 add to sources:
 ```html
-    <script src="https://cdn.jsdelivr.net/npm/a-super-sky@1.1.0/super-sky.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/a-super-sky@1.1.1/super-sky.js"></script>
 ```
 
 ### <= 1.1.0 (only tested as low as 1.0.4)
@@ -149,7 +149,8 @@ document.querySelector('[super-sky]').components['super-sky'].timeOfDay()
 
 # TODO:
 #### enable update functionality
-- figure out why A-Frame's `update()` functionality seems completely borked? Have worked around it for now, but mostly updating values in a-frame inspector, for example, won't work.
+- figure out why A-Frame's `update()` functionality seems completely borked? Have worked around it for now, but mostly updating values in a-frame inspector, for example, won't work. Perhaps related to setting `this.data` directly?
+- add in features from https://github.com/EX3D/aframe-daylight-system !
 
 #### spinny stuff
 - better method for changing moon rise/set position than a-scene rotation? finishing implementing rotation option
