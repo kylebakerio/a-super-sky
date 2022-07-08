@@ -151,11 +151,17 @@ document.querySelector('[super-sky]').components['super-sky'].timeOfDay()
 #### enable update functionality
 - figure out why A-Frame's `update()` functionality seems completely borked? Have worked around it for now, but mostly updating values in a-frame inspector, for example, won't work. Perhaps related to setting `this.data` directly?
 - add in features from https://github.com/EX3D/aframe-daylight-system !
+- some minor stuff gets out of sync if you leave the tab and come back, or change the cycle duration--specifically, for example, the 'timeOfDay' functionality. 
 
 #### spinny stuff
 - better method for changing moon rise/set position than a-scene rotation? finishing implementing rotation option
 - slightly rotate stars over the course of a night
 - enable better control of sun/moon trajectory through sky (allow e.g. lower moon)
+
+#### time of day hooks
+- make it so that you can assign functions to be triggered at a given certain time of day.
+- add in default example for crickets audio playing at night
+- add in default example for shooting stars at night 
 
 #### etc
 - currently night is 3x the length of day. This would imitate only northern winters/southern summers that have 8 hours of daylight, e.g. 10am to 6pm. ability to tweak this would be desirable--maybe speeding up or skipping phases when neither sun nor moon
